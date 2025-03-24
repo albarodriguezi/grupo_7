@@ -3,4 +3,6 @@
 
 void dibujoDeustoBoard();
 
+void dibujoPerfil();
+
 #endif
