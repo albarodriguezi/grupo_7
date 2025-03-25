@@ -1,27 +1,26 @@
 #include <stdio.h>
 #include "usuario.h"
 
-typedef struct{
-    char email;
-    char usuario;
-    char contrasenya;
-}Usuario;
-
-void menuRegistrarse(){
+void menuRegistrarse(Usuario u){
 
     printf("*********************************************************************");
     printf("************************REGISTRO USUARIO*****************************");
     printf("*********************************************************************");
 
-    printf("Introduce el nombre: ");
+    printf("Introduce el email: ");
 	fflush(stdout);
 	fflush(stdin);
-	gets(u.nombre);
+	gets(u.email);
 
-	printf("Introduce el apellido: ");
+	printf("Introduce el nombre de usuario: ");
 	fflush(stdout);
 	fflush(stdin);
-	gets(u.apellido);
+	gets(u.nombreUsuario);
+
+    printf("Introduce el nombre de usuario: ");
+	fflush(stdout);
+	fflush(stdin);
+	gets(u.contrasenya);
 
 }
 
