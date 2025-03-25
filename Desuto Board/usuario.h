@@ -9,6 +9,8 @@ typedef struct{
 
 void menuRegistrarse();
 
+void caseUsuario();
+
 void menuInicioSesion();
 
 #endif;
