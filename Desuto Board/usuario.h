@@ -3,6 +3,6 @@
 
 void menuRegistrarse();
 
-void caseMenuRegistrarse();
+void menuInicioSesion();
 
 #endif;
