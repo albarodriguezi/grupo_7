@@ -4,9 +4,10 @@
 
 typedef struct{
     int codigo[4];
-    bool disponible = true;
 }Partida;
 
-void crearPartida();
+Partida crearPartida();
+bool buscarAmigo();
+void metodoEjemploPartida();
 
 #endif

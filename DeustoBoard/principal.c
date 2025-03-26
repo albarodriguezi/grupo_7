@@ -38,7 +38,7 @@ void casePaginaPrincipal(int opcion) {
     system("cls");
     switch (opcion) {
         case 1:
-            metodoEjemploPartida();
+            crearPartida();
             break;
         case 2:
             metodoEjemploPartida();

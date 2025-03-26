@@ -3,6 +3,6 @@
 
 void menuPrincipal();
 
-void caseMenuPrinicpal(int opcion);
+void caseMenuPrincipal(int opcion);
 
 #endif
