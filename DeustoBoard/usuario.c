@@ -38,7 +38,7 @@ void menuRegistrarse(){
 	fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
 
     printf("\n");
-    printf("Inicio de sesion. \n");
+    printf("REgistro de usuario. \n");
     printf("Para continuar presione la tecla I \n");
     printf("Para salir pulse la tecla E \n");
     fflush(stdout);
