@@ -6,7 +6,8 @@
 #include "principal.h"
 
 void menuRegistrarse();
-void caseUsuario(char tecla);
+void caseRegistro(char tecla);
+void caseInicioSesion(char tecla);
 void menuInicioSesion();
 
 void menuRegistrarse(){
@@ -38,7 +39,7 @@ void menuRegistrarse(){
 	fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
 
     printf("\n");
-    printf("REgistro de usuario. \n");
+    printf("Registro de usuario. \n");
     printf("Para continuar presione la tecla I \n");
     printf("Para salir pulse la tecla E \n");
     fflush(stdout);
@@ -70,7 +71,7 @@ void menuInicioSesion(){
 	fflush(stdin);
     fgets(u.nombreUsuario, sizeof(u.nombreUsuario), stdin);
 
-    printf("Introduce el nombre de usuario: ");
+    printf("Introduce la contrasenya de usuario: ");
 	fflush(stdout);
 	fflush(stdin);
     fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
