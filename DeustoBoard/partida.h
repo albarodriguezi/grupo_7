@@ -1,12 +1,12 @@
 #ifndef PARTIDA_H_
 #define PARTIDA_H_
-
+#include <stdbool.h>
 
 typedef struct{
-    char email[50];
-    int codp[8];
+    int codigo[4];
+    bool disponible = true;
 }Partida;
 
-void metodoEjemploPartida();
+void crearPartida();
 
 #endif
