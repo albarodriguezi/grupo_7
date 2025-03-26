@@ -5,5 +5,5 @@
 #include "dibujos.h"
 
 void metodoEjemploTorneo(){
-    printf("estas en la pagina de las partidas");
+    printf("estas en la pagina de los torneos");
 }

@@ -32,7 +32,7 @@ void menuRegistrarse(){
 	fflush(stdin);
     fgets(u.nombreUsuario, sizeof(u.nombreUsuario), stdin);
 
-    printf("Introduce el nombre de usuario: ");
+    printf("Introduce la contrasenya de usuario: ");
 	fflush(stdout);
 	fflush(stdin);
 	fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
