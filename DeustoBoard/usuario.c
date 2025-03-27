@@ -14,6 +14,8 @@ void menuRegistrarse(){
 
     Usuario u;
 
+    char bufer[50];
+
     char tecla; 
 
     dibujoPerfil();
@@ -25,18 +27,25 @@ void menuRegistrarse(){
 
     printf("Introduce el email: ");
 	fflush(stdout);
-	fflush(stdin);
-    fgets(u.email, sizeof(u.email), stdin);
+    fflush(stdin);
+
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%s", u.email);
+
 
 	printf("Introduce el nombre de usuario: ");
 	fflush(stdout);
-	fflush(stdin);
-    fgets(u.nombreUsuario, sizeof(u.nombreUsuario), stdin);
+    fflush(stdin);
+
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%s", u.contrasenya);
 
     printf("Introduce la contrasenya de usuario: ");
 	fflush(stdout);
-	fflush(stdin);
-	fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
+    fflush(stdin);
+
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%c", &tecla);
 
     printf("\n");
     printf("Registro de usuario. \n");
@@ -45,7 +54,8 @@ void menuRegistrarse(){
     fflush(stdout);
 	fflush(stdin);
 
-	scanf("%c",&tecla);
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%c", &tecla);
 
     caseRegistro(tecla);
 
@@ -57,6 +67,9 @@ void menuRegistrarse(){
 void menuInicioSesion(){
 
     Usuario u;
+
+    char bufer[50];
+
     char tecla;
 
     dibujoPerfil();
@@ -68,13 +81,16 @@ void menuInicioSesion(){
 
     printf("Introduce el nombre de usuario: ");
 	fflush(stdout);
-	fflush(stdin);
-    fgets(u.nombreUsuario, sizeof(u.nombreUsuario), stdin);
+    fflush(stdin);
+
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%s", u.nombreUsuario);
 
     printf("Introduce la contrasenya de usuario: ");
 	fflush(stdout);
 	fflush(stdin);
-    fgets(u.contrasenya, sizeof(u.contrasenya), stdin);
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%s", u.contrasenya);
 
     printf("\n");
     printf("Inicio de sesion. \n");
@@ -83,7 +99,8 @@ void menuInicioSesion(){
     fflush(stdout);
 	fflush(stdin);
 
-	scanf("%c",&tecla);
+    fgets(bufer, sizeof(bufer), stdin);
+    sscanf(bufer, "%c", &tecla);
 
     caseInicioSesion(tecla);
 
