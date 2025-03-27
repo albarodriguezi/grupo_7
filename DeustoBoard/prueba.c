@@ -1,5 +1,5 @@
 #include "database.h"
-
+/*
 
 int main(){
     createDB();
@@ -7,3 +7,5 @@ int main(){
     
     //deleteDB();
 }
+
+*/
