@@ -4,7 +4,7 @@
 typedef struct{
     char email[50];
     char nombreUsuario[50];
-    char contrasenya[8];
+    char contrasenya[50];
 }Usuario;
 
 void menuRegistrarse();

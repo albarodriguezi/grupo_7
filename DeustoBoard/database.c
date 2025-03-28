@@ -3,6 +3,7 @@
 #include "usuario.h"
 #include "sqlite3.h"
 #include <string.h>
+#include "database.h"
 
 int lineasFichero(char* f)
 {
@@ -21,6 +22,42 @@ int lineasFichero(char* f)
 	fclose(file);
 	return num_lines;
 }
+
+
+Usuario* getListaUsuario(){
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from USUARIO";
+    char sql3[] = "select count(*) from USUARIO";
+    sqlite3_open("database.sqlite", &db);
+    
+	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
+	printf("\n");
+    int count = sqlite3_step(stmt);
+    Usuario* userList = (Usuario*)malloc((count) * sizeof(Usuario));
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+            strcpy(userList[i].email,(char*) sqlite3_column_text(stmt, 0));
+            strcpy(userList[i].nombreUsuario,(char*) sqlite3_column_text(stmt, 1));
+            strcpy(userList[i].contrasenya,(char*) sqlite3_column_text(stmt, 2));
+			//printf("%s\n", userList[i].email);
+            i++;
+		}
+	} while (result == SQLITE_ROW);
+	//printf("\n");
+    //printf("%s\n",userList[49].email);
+	sqlite3_finalize(stmt);
+
+	/* --- SELECT (fin) --- */
+
+	sqlite3_close(db);
+
+    return userList;
+}
 /*
 void csvToDatabase(){
     FILE *file = fopen("users.csv","r");
@@ -29,9 +66,9 @@ void csvToDatabase(){
     char line[1024]; // Buffer to store a line
     int person_count = 1;
     Usuario* users=NULL;
-    
 
-    
+
+
     if (!file) {
         perror("Unable to open file");
         return;
@@ -41,7 +78,7 @@ void csvToDatabase(){
         printf("%i\n",person_count);
         line[strcspn(line, "\n")] = '\0';
         char *token = strtok(line, ",");
-        
+
             users = malloc(person_count*sizeof(Usuario));
             while (token != NULL) {
             switch (csv_inx) {
@@ -69,6 +106,34 @@ void csvToDatabase(){
 }
 
 */
+Usuario getUsuario(char *email)
+{
+    Usuario u;
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from USUARIO where EMAIL = ?";
+    sqlite3_open("database.sqlite", &db);
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    sqlite3_bind_text(stmt, 1, email, strlen(email), SQLITE_TRANSIENT);
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+            strcpy(u.email,(char*) sqlite3_column_text(stmt, 0));
+            strcpy(u.nombreUsuario,(char*) sqlite3_column_text(stmt, 1));
+            strcpy(u.contrasenya,(char*) sqlite3_column_text(stmt, 2));
+			//printf("%s\n", u.email);
+            }
+            i++;
+		
+	} while (result == SQLITE_ROW);
+	//printf("\n");
+	sqlite3_finalize(stmt);
+
+	sqlite3_close(db);
+    return u;
+}
 void createDB(){
     sqlite3 *db;
 	sqlite3_stmt *stmt;
@@ -132,6 +197,7 @@ void csvToDatabaseUsuario() {
         return;
     }
     users = (Usuario*) malloc(num * sizeof(Usuario));
+
     while (fgets(line, sizeof(line), file)) {
         // Remove trailing newline, if present
         line[strcspn(line, "\r\n")] = '\0';
@@ -158,6 +224,7 @@ void csvToDatabaseUsuario() {
                     break;
                 case 2:
                     strcpy(users[person_count].contrasenya, token);
+                    //printf("%s\n",token);
                     break;
                 default:
                     break;
@@ -182,13 +249,11 @@ void csvToDatabaseUsuario() {
     sqlite3 *db;
 	sqlite3_stmt *stmt;
 	int result;
-    printf("%s\n",users[3].contrasenya);
 	sqlite3_open("database.sqlite", &db);
 
     char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?)";
     int i = 0;
 	
-    printf("%s\n",users[50].email);
     for (int i = 0; i < num-1; i++) {
         // Bind values to the SQL statement
         //printf("%s\n",users[50].email);
@@ -201,12 +266,13 @@ void csvToDatabaseUsuario() {
         
         result = sqlite3_step(stmt);
         //printf("%s\n",users[50].email);
+        /*
         if (result != SQLITE_DONE) {
             printf("Error inserting user %s: %s\n", users[i].nombreUsuario, sqlite3_errmsg(db));
         } else {
             printf("Usuario insertado: %s\n", users[i].nombreUsuario);
         }
-
+        */
         // Reset the statement to reuse it for the next user
         sqlite3_reset(stmt);
         
