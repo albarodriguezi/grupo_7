@@ -4,6 +4,7 @@
 #include "dibujos.h"
 #include "usuario.h"
 
+
 void menuPrincipal();
 void caseMenuPrincipal(int opcion);
 void menuRegistrarse();

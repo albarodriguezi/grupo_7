@@ -32,8 +32,9 @@ Usuario* getListaUsuario(){
     sqlite3_open("database.sqlite", &db);
     
 	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
+    sqlite3_step(stmt);
 	printf("\n");
-    int count = sqlite3_step(stmt);
+    int count = sqlite3_column_int(stmt, 0);
     Usuario* userList = (Usuario*)malloc((count) * sizeof(Usuario));
     sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
     int result;
@@ -148,9 +149,9 @@ void createDB(){
 	result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
 		printf("Error insertando tabla\n");
-	}else{
-		printf("Tabla  insertado\n");
-	}
+	}//else{
+		//printf("Tabla  insertado\n");
+	//}
     //sqlite3_finalize(db);
     sqlite3_close(db);
 }

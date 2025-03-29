@@ -14,4 +14,6 @@ Usuario* getListaUsuario();
 
 Usuario getUsuario(char * email);
 
+int lineasFichero(char* f);
+
 #endif

@@ -5,6 +5,7 @@
 #include "dibujos.h"
 #include "principal.h"
 
+
 void menuRegistrarse();
 void caseRegistro(char tecla);
 void caseInicioSesion(char tecla);
@@ -134,10 +135,10 @@ void caseInicioSesion(char tecla){
     system("cls");
 	switch (tecla) {
         case 'I':
-            paginaPrincipal();
+            elegirModoJuego();
             break;
         case 'i':
-            paginaPrincipal();
+            elegirModoJuego();
             break;
         case 'E':
             printf("saliendo de DEUSTO BOARD");

@@ -3,6 +3,7 @@
 #include "menuPrincipal.h"
 #include "principal.h"
 #include "partida.h"
+#include "usuario.h"
 #include "torneo.h"
 #include "dibujos.h"
 
@@ -34,6 +35,33 @@ void paginaPrincipal() {
     casePaginaPrincipal(opcion);
 }
 
+void elegirModoJuego(){
+    char str[5];
+    int opcion;
+    system("cls");
+    printf("\nElegir juego: \n");
+    printf("1.Damas\n2.Ajedrez\n");
+    fgets(str, sizeof(str), stdin);
+    sscanf(str, "%d", &opcion);
+    fflush(stdin);
+
+    system("cls");
+    switch (opcion)
+    {
+    case 1:
+        printf("Has elegido Damas\n");
+        paginaPrincipal();
+        break;
+    case 2:
+        printf("Has elegido Ajedrez\n");
+        paginaPrincipal();
+        break;
+    default:
+        printf("No es una opcion valida");
+        break;
+    }
+}
+
 void casePaginaPrincipal(int opcion) {
     system("cls");
     switch (opcion) {
@@ -54,6 +82,7 @@ void casePaginaPrincipal(int opcion) {
             break;  
         case 6:
             printf("Saliendo de DEUSTO BOARD\n");
+            menuPrincipal();
             break;
         default:
             printf("El digito introducido no corresponde a ninguno de los anteriores\n");

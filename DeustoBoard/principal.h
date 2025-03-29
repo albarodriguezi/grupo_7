@@ -5,4 +5,6 @@ void paginaPrincipal();
 
 void casePaginaPrincipal(int opcion);
 
+void elegirModoJuego();
+
 #endif
