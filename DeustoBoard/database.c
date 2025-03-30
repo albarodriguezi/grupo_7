@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "usuario.h"
+#include "partida.h"
 #include "sqlite3.h"
 #include <string.h>
 #include "database.h"
+#include <time.h>
 
 int lineasFichero(char* f)
 {
@@ -58,6 +60,47 @@ Usuario* getListaUsuario(){
 	sqlite3_close(db);
 
     return userList;
+}
+
+Partida* getListaPartida(){
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from PARTIDA";
+    char sql3[] = "select count(*) from PARTIDA";
+    sqlite3_open("database.sqlite", &db);
+    
+	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
+    sqlite3_step(stmt);
+	printf("\n");
+    int count = sqlite3_column_int(stmt, 0);
+    Partida* PartList = (Partida*)malloc((count) * sizeof(Partida));
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+            strcpy(PartList[i].codigo,(char*) sqlite3_column_text(stmt, 0));
+            PartList[i].resultado=(int) sqlite3_column_int(stmt, 3);
+            strcpy(PartList[i].juego,(char*) sqlite3_column_text(stmt, 2));
+            const char *dateStr = (const char *)sqlite3_column_text(stmt, 4);
+            sscanf(dateStr, "%d-%d-%d", &PartList[i].fecha.tm_year, &PartList[i].fecha.tm_mon, &PartList[i].fecha.tm_mday);
+            PartList[i].fecha.tm_year-=1900;
+            PartList[i].fecha.tm_mon-=1;
+            strcpy(PartList[i].codigotorneo,(char*) sqlite3_column_text(stmt, 1));
+			//printf("%s\n", userList[i].email);
+            i++;
+		}
+	} while (result == SQLITE_ROW);
+	//printf("\n");
+    //printf("%s\n",userList[49].email);
+	sqlite3_finalize(stmt);
+
+	/* --- SELECT (fin) --- */
+
+	sqlite3_close(db);
+
+    return PartList;
 }
 /*
 void csvToDatabase(){
@@ -135,7 +178,44 @@ Usuario getUsuario(char *email)
 	sqlite3_close(db);
     return u;
 }
-void createDB(){
+Partida getPartida(char *codigo)
+{
+    Partida p;
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from PARTIDA where CODPARTIDA = ?";
+    sqlite3_open("database.sqlite", &db);
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    sqlite3_bind_text(stmt, 1, codigo, strlen(codigo), SQLITE_TRANSIENT);
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+        
+		if (result == SQLITE_ROW) {
+            strcpy(p.codigo,(char*) sqlite3_column_text(stmt, 0));
+            p.resultado=(int) sqlite3_column_int(stmt, 3);
+            strcpy(p.juego,(char*) sqlite3_column_text(stmt, 2));
+            const char *dateStr = (const char *)sqlite3_column_text(stmt, 4);
+            //printf("%s\n", p.codigo);
+            sscanf(dateStr, "%d-%d-%d", &p.fecha.tm_year, &p.fecha.tm_mon, &p.fecha.tm_mday);
+            p.fecha.tm_year-=1900;
+            p.fecha.tm_mon-=1;
+            //strcpy(p.fecha,(struct tm) sqlite3_column_text(stmt, 4));
+            strcpy(p.codigotorneo,(char*) sqlite3_column_text(stmt, 1));
+			
+            }
+            i++;
+		
+	} while (result == SQLITE_ROW);
+	//printf("\n");
+	sqlite3_finalize(stmt);
+
+	sqlite3_close(db);
+    return p;
+}
+void createDB()
+{
     sqlite3 *db;
 	sqlite3_stmt *stmt;
 	int result;
@@ -143,13 +223,25 @@ void createDB(){
 	sqlite3_open("database.sqlite", &db);
 
     char sql1[] = "CREATE TABLE IF NOT EXISTS USUARIO(EMAIL TEXT PRIMARY KEY NOT NULL,USERNAME TEXT NOT NULL,PASSWORD TEXT)";
-
-	sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
+    char sql2[] = "CREATE TABLE IF NOT EXISTS PARTIDA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,CODTORNEO TEXT NOT NULL,JUEGO TEXT,RESULTADO INT,FECHA DATE)";
+	char sql3[] = "CREATE TABLE IF NOT EXISTS PARTICIPA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,USERA TEXT NOT NULL,USERB TEXT)";
+    sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
 	result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
 		printf("Error insertando tabla\n");
-	}//else{
+	}
+    sqlite3_prepare_v2(db, sql2, strlen(sql2) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}
+    sqlite3_prepare_v2(db, sql3, strlen(sql3) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}
+    //else{
 		//printf("Tabla  insertado\n");
 	//}
     //sqlite3_finalize(db);
@@ -164,10 +256,28 @@ void deleteDB(){
 	sqlite3_open("database.sqlite", &db);
 
     char sql1[] = "DROP TABLE IF EXISTS USUARIO";
+    char sql2[] = "DROP TABLE IF EXISTS PARTIDA";
+    char sql3[] = "DROP TABLE IF EXISTS PARTICIPA";
 
 	sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
 	result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}else{
+		printf("Tabla  insertado\n");
+	}
+
+    sqlite3_prepare_v2(db, sql2, strlen(sql2) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}else{
+		printf("Tabla  insertado\n");
+	}
+
+    sqlite3_prepare_v2(db, sql3, strlen(sql3) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
 		printf("Error insertando tabla\n");
 	}else{
@@ -289,3 +399,255 @@ void csvToDatabaseUsuario() {
     fclose(file);
 }
 
+void csvToDatabasePartida() {
+    
+    char line[1024];          // Buffer to store a line
+    int count = 0;     // Number of users read
+    Partida *partidas;    // Pointer to dynamically store users
+    int num;
+    num = lineasFichero("partidas.csv");
+    //rewind(file);
+    FILE *file = fopen("partidas.csv", "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+     // Skip the first line (header)
+     if (fgets(line, sizeof(line), file) == NULL) {
+        printf("File is empty or unable to read the header.\n");
+        fclose(file);
+        return;
+    }
+    partidas = (Partida*) malloc(num * sizeof(Partida));
+
+    while (fgets(line, sizeof(line), file)) {
+        // Remove trailing newline, if present
+        line[strcspn(line, "\r\n")] = '\0';
+
+        // Dynamically allocate memory for a new user
+        
+        if (!partidas) {
+            perror("Memory allocation failed");
+            fclose(file);
+            return;
+        }
+
+        // Split the line into tokens and populate the struct
+        char *token = strtok(line, ",");
+        int csv_inx = 0;  // Reset csv_inx for each row
+
+        while (token != NULL) {
+            switch (csv_inx) {
+                case 0:
+                    strcpy(partidas[count].codigo, token);
+                    //printf("%s\n",token);
+                    break;
+                case 1:
+                    sscanf(token,"%i",&partidas[count].resultado);
+                    //printf("%i\n",partidas[count].resultado);
+                    break;
+                case 2:
+                    strcpy(partidas[count].juego, token);
+                    break;
+                case 3:
+                    sscanf(token,"%i",&partidas[count].fecha.tm_year);
+                    partidas[count].fecha.tm_year-=1900;
+                    //printf("%s\n",token);
+                    break;
+                case 4:
+                    sscanf(token,"%i",&partidas[count].fecha.tm_mon);
+                    partidas[count].fecha.tm_year-=1;
+                    //printf("%s\n",token);
+                    break;
+                case 5:
+                    sscanf(token,"%i",&partidas[count].fecha.tm_mday);
+                    //partidas[count].fecha.tm_year-=1900;
+                    //printf("%s\n",token);
+                    break;
+                case 6:
+                    strcpy(partidas[count].codigotorneo, token);
+                    //printf("%s\n",token);
+                    break;
+                default:
+                    break;
+            }
+            token = strtok(NULL, ",");
+            csv_inx++;
+            
+        }
+        
+        count++;  // Increment the number of users read
+        
+    }
+    //printf("%s\n",users[3].contrasenya);
+    /*
+    // Print a specific user's email for verification (e.g., user 30)
+    if (person_count > 30) {
+        printf("User 30's email: %s\n", users[30].email);
+    } else {
+        printf("Not enough users in the file to display user 30.\n");
+    }
+    */
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+	int result;
+	sqlite3_open("database.sqlite", &db);
+
+    char sql1[] = "insert into PARTIDA (CODPARTIDA,RESULTADO,JUEGO,FECHA,CODTORNEO) values (?, ?, ?, ?, ?)";
+    int i = 0;
+	
+    for (int i = 0; i < num-1; i++) {
+        // Bind values to the SQL statement
+        //printf("%s\n",users[50].email);
+        int year = partidas[i].fecha.tm_year+1900;
+        int month = partidas[i].fecha.tm_mon+1;
+        int day = partidas[i].fecha.tm_mday;
+        char cyear[5], cmonth[3], cday[3], date[11];
+        snprintf(cyear, sizeof(cyear), "%d", year);
+        snprintf(cmonth, sizeof(cmonth), "%02d", month);  // Ensures two digits (e.g., "03")
+        snprintf(cday, sizeof(cday), "%02d", day);
+        snprintf(date, sizeof(date), "%s-%s-%s", cyear, cmonth, cday);
+        
+        sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, partidas[i].codigo, strlen(partidas[i].codigo), SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 2, partidas[i].resultado);
+        sqlite3_bind_text(stmt, 3, partidas[i].juego, strlen(partidas[i].juego), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 4, date, strlen(date), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 5, partidas[i].codigotorneo, strlen(partidas[i].codigotorneo), SQLITE_TRANSIENT);
+
+        // Execute the SQL statement
+        
+        result = sqlite3_step(stmt);
+        //printf("%s\n",users[50].email);
+        /*
+        if (result != SQLITE_DONE) {
+            printf("Error inserting user %s: %s\n", users[i].nombreUsuario, sqlite3_errmsg(db));
+        } else {
+            printf("Usuario insertado: %s\n", users[i].nombreUsuario);
+        }
+        */
+        // Reset the statement to reuse it for the next user
+        sqlite3_reset(stmt);
+        
+    }
+	
+    //sqlite3_finalize(db);
+    sqlite3_close(db);
+	
+
+    free(partidas);
+
+    // Close the file
+    fclose(file);
+}
+
+void csvToDatabaseParticipa() {
+    
+    char line[1024];          // Buffer to store a line
+    int person_count = 0;     // Number of users read
+    Usuario *users;    // Pointer to dynamically store users
+    int num;
+    num = lineasFichero("users.csv");
+    //rewind(file);
+    FILE *file = fopen("users.csv", "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+     // Skip the first line (header)
+     if (fgets(line, sizeof(line), file) == NULL) {
+        printf("File is empty or unable to read the header.\n");
+        fclose(file);
+        return;
+    }
+    users = (Usuario*) malloc(num * sizeof(Usuario));
+
+    while (fgets(line, sizeof(line), file)) {
+        // Remove trailing newline, if present
+        line[strcspn(line, "\r\n")] = '\0';
+
+        // Dynamically allocate memory for a new user
+        
+        if (!users) {
+            perror("Memory allocation failed");
+            fclose(file);
+            return;
+        }
+
+        // Split the line into tokens and populate the struct
+        char *token = strtok(line, ",");
+        int csv_inx = 0;  // Reset csv_inx for each row
+
+        while (token != NULL) {
+            switch (csv_inx) {
+                case 0:
+                    strcpy(users[person_count].email, token);
+                    break;
+                case 1:
+                    strcpy(users[person_count].nombreUsuario, token);
+                    break;
+                case 2:
+                    strcpy(users[person_count].contrasenya, token);
+                    //printf("%s\n",token);
+                    break;
+                default:
+                    break;
+            }
+            token = strtok(NULL, ",");
+            csv_inx++;
+            
+        }
+        
+        person_count++;  // Increment the number of users read
+        
+    }
+    //printf("%s\n",users[3].contrasenya);
+    /*
+    // Print a specific user's email for verification (e.g., user 30)
+    if (person_count > 30) {
+        printf("User 30's email: %s\n", users[30].email);
+    } else {
+        printf("Not enough users in the file to display user 30.\n");
+    }
+    */
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+	int result;
+	sqlite3_open("database.sqlite", &db);
+
+    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?)";
+    int i = 0;
+	
+    for (int i = 0; i < num-1; i++) {
+        // Bind values to the SQL statement
+        //printf("%s\n",users[50].email);
+        sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, users[i].email, strlen(users[i].email), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, users[i].nombreUsuario, strlen(users[i].nombreUsuario), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, users[i].contrasenya, strlen(users[i].contrasenya), SQLITE_TRANSIENT);
+
+        // Execute the SQL statement
+        
+        result = sqlite3_step(stmt);
+        //printf("%s\n",users[50].email);
+        /*
+        if (result != SQLITE_DONE) {
+            printf("Error inserting user %s: %s\n", users[i].nombreUsuario, sqlite3_errmsg(db));
+        } else {
+            printf("Usuario insertado: %s\n", users[i].nombreUsuario);
+        }
+        */
+        // Reset the statement to reuse it for the next user
+        sqlite3_reset(stmt);
+        
+    }
+	
+    //sqlite3_finalize(db);
+    sqlite3_close(db);
+	
+
+    free(users);
+
+    // Close the file
+    fclose(file);
+}

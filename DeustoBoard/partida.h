@@ -7,12 +7,14 @@
 
 
 typedef struct{
-    int codigo[4];
+    char codigo[5];
     int resultado;
     bool activa;
+    char juego[15];
     struct tm fecha;
     char registroMov[100];
     bool amistosoCom;
+    char codigotorneo[5];
 
 }Partida;
 /*
