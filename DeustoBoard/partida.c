@@ -361,7 +361,7 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
     printf("%i\n",ficha[1]);
     printf("%i,%i\n", dama, tableroDamas->array[ficha[0]][ficha[1]]);
         }while (!(str[1] == ',' && ficha[0] <9 && ficha[0] >=0 && ficha[1] <9 && ficha[1] >=0 && tableroDamas->array[ficha[0]][ficha[1]] == dama)||fichaEnArray(fichasConPosibleCaptura, contadorPosiblesCapturas,ficha[0],ficha[1]) == 0);
-        if (hayPiezaBandoOpuesto(*tableroDamas,numJugador,0,ficha[0],ficha[1]) == 1)
+        if (hayPiezaEnProximidad(*tableroDamas,numJugador,0,ficha[0],ficha[1]) == 1)
         {
             tableroDamas->array[ficha[0]-direccion*2][ficha[1]-2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
@@ -417,7 +417,7 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             fgets(str, 2, stdin);
             movimiento = str[0] - 48;
             fgets(str,2,stdin);
-            if ((ficha[1] == 0 && movimiento == 1) || (ficha[1] == 7 && movimiento == 2) || (ficha[0] == 0 && direccion == 1) || (ficha[0] == 7 && direccion == -1))
+            if ((ficha[1] == 0 && movimiento == 1) || (ficha[1] == 7 && movimiento == 2) || (((ficha[0] == 0 && direccion == 1) || (ficha[0] == 7 && direccion == -1))&& movimiento != 5))
             {
                 printf("Este movimiento sacaria la ficha del tablero (invalido)\n");
                 goto labelMovimiento;
@@ -484,46 +484,109 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
                 goto labelMovimiento;
                 break;
             }
-            imprimirTableroDamas(*tableroDamas);
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
                     if(i == (numJugador-1)*7 && tableroDamas->array[i][j] == dama)
                 {
-                    tableroDamas->array[i][j] == damaReina;
+                    tableroDamas->array[i][j] = damaReina;
+                    printf("El jugador %i dispone de una nueva reina", numJugador);
                 }
                 }
                 
             }
+            imprimirTableroDamas(*tableroDamas);
             
             }
         
 }
-
-int hayPiezaBandoOpuesto(Tablero8x8 tableroDamas, int bando, int isReina, int filaFicha, int columnaFicha){
+//Devuelve 0 si no hay piezas, 1 si la pieza opuesta está a la izquierda, 2 si está a la derecha,
+//3 si la pieza es del mismo bando y está a la izquierda, 4 si es del mismo bando y está a la derecha y
+//5 si la posición queda fuera del tablero.
+int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int filaFicha, int columnaFicha){
     int direccion;
     if (bando == 1)
     {
         direccion = 1;
-        if (tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 3 || tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 4)
+        if (filaFicha < 0 )
         {
-            return 1;
-        }else if(tableroDamas.array[filaFicha-direccion][columnaFicha+1] == 3 || tableroDamas.array[filaFicha-direccion][columnaFicha+1] == 4){
-            return 2;
+            return 5;
+        }
+        
+    }else{
+        direccion = -1;
+        if (filaFicha > 7 )
+        {
+            return 5;
+        }
+    }
+        if (tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 3+(direccion-1) || tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 4+(direccion-1))
+        {
+            if ((columnaFicha-1)<0)
+            {
+                return 5;
+            }else{
+                return 1;
+            }
+        }if(tableroDamas.array[filaFicha-direccion][columnaFicha+1] == 3+(direccion-1) || tableroDamas.array[filaFicha-direccion][columnaFicha+1] == 4+(direccion-1)){
+            if ((columnaFicha+1)>7)
+            {
+                return 5;
+            }else{
+                return 2;
+            }
+        }if(tableroDamas.array[filaFicha-direccion][columnaFicha-1] != 0){
+            if ((columnaFicha-1)<0)
+            {
+                return 5;
+            }else{
+                return 3;
+            }
+        }if(tableroDamas.array[filaFicha-direccion][columnaFicha+1] != 0){
+            if ((columnaFicha+1)>7)
+            {
+                return 5;
+            }else{
+                return 4;
+            }
         }
         if (isReina == 1)
         {
-            if (tableroDamas.array[filaFicha+direccion][columnaFicha-1] == 3 || tableroDamas.array[filaFicha+direccion][columnaFicha-1] == 4)
+            if (tableroDamas.array[filaFicha+direccion][columnaFicha-1] == 3+(direccion-1) || tableroDamas.array[filaFicha+direccion][columnaFicha-1] == 4+(direccion-1))
             {
+                if ((columnaFicha-1)<0)
+            {
+                return 5;
+            }else{
                 return 1;
-            }else if(tableroDamas.array[filaFicha+direccion][columnaFicha+1] == 3 || tableroDamas.array[filaFicha+direccion][columnaFicha+1] == 4){
+            }
+            }if(tableroDamas.array[filaFicha+direccion][columnaFicha+1] == 3+(direccion-1) || tableroDamas.array[filaFicha+direccion][columnaFicha+1] == 4+(direccion-1)){
+                if ((columnaFicha+1)>7)
+            {
+                return 5;
+            }else{
                 return 2;
             }
+            }if(tableroDamas.array[filaFicha+direccion][columnaFicha-1] != 0){
+                if ((columnaFicha-1)<0)
+            {
+                return 5;
+            }else{
+                return 3;
+            }
+            }if(tableroDamas.array[filaFicha+direccion][columnaFicha-1] != 0){
+                if ((columnaFicha+1)>7)
+            {
+                return 5;
+            }else{
+                return 4;
+            }
+        }
         }
         return 0;
         
-    }else{
+    /*}else{
         int direccion = -1;
         if (tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 1 || tableroDamas.array[filaFicha-direccion][columnaFicha-1] == 2)
         {
@@ -541,9 +604,8 @@ int hayPiezaBandoOpuesto(Tablero8x8 tableroDamas, int bando, int isReina, int fi
                 return 2;
             }
         }
-        return 0;
+        return 0;*/
         
-    }
 }
 int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha){
     int direccion;
@@ -553,25 +615,30 @@ int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int fil
     }else{
         direccion = -1;
     }
-    if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha,columnaFicha) == 1)
-    {
-        if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha-1) != 1){
+    if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha) == 1)
+    { 
+        if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha) == 5)
+        {
+            return 0;
+        }
+    
+        if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha-1) !=3 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha-1) !=1 ){
             return 1;
         }
         if (isDama)
         {
-           if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha-1) != 1){
+           if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha-1) != 3 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha-1) != 1){
             return 1;
         }
         }
         
-    }else if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha,columnaFicha) == 2){
-        if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha+1) != 2){
+    }else if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha) == 2){
+        if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha+1) != 4 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-direccion,columnaFicha+1) != 2){
             return 1;
         }
         if (isDama)
         {
-           if (hayPiezaBandoOpuesto(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha+1) != 1){
+           if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha+1) != 4 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+direccion,columnaFicha+1) != 2){
             return 1;
         }
         }
