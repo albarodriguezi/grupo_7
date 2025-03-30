@@ -2,13 +2,26 @@
 #define PARTIDA_H_
 #include <stdbool.h>
 #include "usuario.h"
+#include <time.h>
 
 
 
 typedef struct{
     int codigo[4];
-}Partida;
+    int resultado;
+    bool activa;
+    struct tm fecha;
+    char registroMov[100];
+    bool amistosoCom;
 
+}Partida;
+/*
+    
+    // ejemplo de como seleccionar una fecha específica (ejemplo: 10 abril 2025)
+    e.fecha.tm_mday = 10;
+    e.fecha.tm_mon = 3;  // Meses van de 0 (enero) a 11 (diciembre)
+    e.fecha.tm_year = 2025 - 1900;  // tm_year cuenta desde 1900
+*/
 Partida crearPartida();
 bool buscarAmigo();
 void metodoEjemploPartida();

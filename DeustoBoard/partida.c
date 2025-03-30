@@ -19,7 +19,7 @@
 
 
 void metodoEjemploPartida(){
-    printf("\nestas en la pagina de las partidas");
+    //printf("\nestas en la pagina de las partidas");
     //Comentar esta siguiente función para impedir que comience una partida a las damas
     partidaDamas();
 }
