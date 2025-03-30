@@ -43,9 +43,9 @@ void imprimirTableroDamas(Tablero8x8 tablero);
 
 void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna);
 
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador);
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int * piezasAdversario);
 //void turnoJugador2(Tablero8x8* tableroDamas, char str[4], int movimiento);
-int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha);
+int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha, int preferenciaOutOfBounds);
 
 int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha);
 
