@@ -6,6 +6,7 @@
 #include "usuario.h"
 #include "torneo.h"
 #include "dibujos.h"
+#include "partidaCuatroRaya.h"
 
 void paginaPrincipal();
 void casePaginaPrincipal(int opcion);
@@ -40,7 +41,7 @@ void elegirModoJuego(){
     int opcion;
     system("cls");
     printf("\nElegir juego: \n");
-    printf("1.Damas\n2.Ajedrez\n");
+    printf("1. Damas\n2. Ajedrez\n3. Cuatro en raya\n");
     fgets(str, sizeof(str), stdin);
     sscanf(str, "%d", &opcion);
     fflush(stdin);
@@ -55,6 +56,10 @@ void elegirModoJuego(){
     case 2:
         printf("Has elegido Ajedrez\n");
         paginaPrincipal();
+        break;
+    case 3:
+        printf("Has elegido Cuatro en Raya\n");
+        menuCuatroRaya();
         break;
     default:
         printf("No es una opcion valida");
