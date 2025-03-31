@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "usuario.h"
+
 #include <time.h>
 
 
@@ -44,7 +45,7 @@ void imprimirTableroDamas(Tablero8x8 tablero);
 
 void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna);
 
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int * piezasAdversario);
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int * piezasAdversario, FILE* fichero);
 //void turnoJugador2(Tablero8x8* tableroDamas, char str[4], int movimiento);
 int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha, int preferenciaOutOfBounds);
 
@@ -52,10 +53,10 @@ int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int fil
 
 int fichaEnArray(int** arrayFichas, int tamanyoArray, int filaFicha, int columnaFicha);
 
-void partidaDamas();
+void partidaDamas(Partida* partida);
 
 FILE* crearCSVPartida(char* fichero);
 
-void almacenarDatosPartida(char codigo[5], int resultado, bool activa, char juego[15], struct tm fecha, char registroMov[100], bool amistosoCom, char codigotorneo[5]);
+void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero);
 
 #endif

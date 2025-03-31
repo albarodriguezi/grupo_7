@@ -20,10 +20,10 @@
 
 
 void metodoEjemploPartida(){
-    //printf("\nestas en la pagina de las partidas");
+    printf("\nestas en la pagina de las partidas");
     //Comentar esta siguiente función para impedir que comience una partida a las damas
-    partidaDamas();
-    printf("Ha concluido la partida\n");
+    //partidaDamas();
+    //printf("Ha concluido la partida\n");
 }
 Usuario *listaUsuario;
 
@@ -57,7 +57,7 @@ Partida crearPartida(int tipoJuego){
         //aqui tiene que ir a la partida para jugar contra uno aleatorio
 
         if (tipoJuego == 1) {
-            metodoEjemploPartida(); //partida de damas
+            partidaDamas(&partida); //partida de damas
         } else if (tipoJuego == 2) {
             metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
         } else if (tipoJuego == 3) {
@@ -144,9 +144,16 @@ int seleccionarJugadorAleatorio(){
 
     return posicionAleatoria;
 }
-void partidaDamas(){
+void partidaDamas(Partida* partida){
     printf("\nIniciando partida a las Damas...\n");
     Tablero8x8 tableroDamas = crearTableroDamas();
+    partida->juego[0] = 'D';
+    partida->juego[0] = 'a';
+    partida->juego[0] = 'm';
+    partida->juego[0] = 'a';
+    partida->juego[0] = 's';
+    partida->juego[0] = '\0';
+
     imprimirTableroDamas(tableroDamas);
     int isGameOver = 0;
     int numDamasN = 12;
@@ -155,26 +162,33 @@ void partidaDamas(){
     //Necesito este string para recoger el input
     char str[4];
     int movimiento;
+    FILE * fichero = crearCSVPartida("partidas.csv");
+    printf(partida->codigo);
+    almacenarDatosPartida(partida->codigo,0,partida->juego,partida->fecha,partida->codigotorneo,fichero);
     //Bucle del juego
     do
     {
-        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB);
+        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB, fichero);
         printf("Quedan %i fichas blancas\n",numDamasB);
         if (numDamasB <= 0)
         {
             isGameOver = 1;
+            partida->resultado = 2;
             break;
         }
         
-        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN);
+        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN, fichero);
         printf("Quedan %i fichas negras\n",numDamasN);
         if (numDamasN <= 0)
         {
             isGameOver = 1;
+            partida->resultado = 1;
         }
 
         
     } while (isGameOver != 1);
+    printf("Ha concluido la partida\n");
+    almacenarDatosPartida(partida->codigo,partida->resultado,partida->juego,partida->fecha,partida->codigotorneo,fichero);
     
 }
 
@@ -323,7 +337,7 @@ void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna)
         printf("\n");
     }
 }
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario){
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, FILE* fichero){
     int ficha[2];
     int dama;
     int damaReina;
@@ -405,7 +419,8 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
             tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]+1] = 0;
-             if (ficha[0] == 7 || ficha[0] == 0)
+            
+             if (ficha[0]-sentidoMovimiento*2 == 7 || ficha[0]-sentidoMovimiento*2 == 0)
             {
              tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = damaReina;   
             }
@@ -703,7 +718,14 @@ int fichaEnArray(int** arrayFichas, int tamanyoArray, int filaFicha, int columna
 }
 FILE* crearCSVPartida(char* fichero){
     FILE* fich = fopen(fichero, "w");
+    return fich;
 }
-void almacenarDatosPartida(char codigo[5], int resultado, bool activa, char juego[15], struct tm fecha, char registroMov[100], bool amistosoCom, char codigotorneo[5]){
+void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero){
     
+    fprintf(fichero,"CODPARTIDA,RESULTADO,JUEGO,AÑO,MES,DÍA,CODTORNEO\n");
+    //Cod partida es 1111 porque de momento si no no funciona
+    fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%s\n",1, 1, 1, 1,resultado,juego,fecha.tm_year,fecha.tm_mon,fecha.tm_mday, codigotorneo);
+    csvToDatabasePartida();
+    fclose(fichero);
+    fichero = NULL;
 }
