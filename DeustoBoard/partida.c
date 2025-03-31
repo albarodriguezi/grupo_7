@@ -167,7 +167,7 @@ void partidaDamas(){
         }
         
         turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN);
-        printf("Quedan %i fichas negras",numDamasN);
+        printf("Quedan %i fichas negras\n",numDamasN);
         if (numDamasN <= 0)
         {
             isGameOver = 1;
@@ -382,24 +382,33 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
     } do
         { 
     fgets(str,4,stdin);
-    printf("El jugador %i solo puede cojer una de las fichas con captura disponible",numJugador);
+    printf("El jugador %i solo puede coger una de las fichas con captura disponible\n",numJugador);
     fgets(str, 4, stdin);
     ficha[0] = str[0] - 49;
     ficha[1] = str[2] - 49;
     printf("%i\n",ficha[0]);
     printf("%i\n",ficha[1]);
     printf("%i,%i\n", dama, tableroDamas->array[ficha[0]][ficha[1]]);
-        }while (!(str[1] == ',' && ficha[0] <9 && ficha[0] >=0 && ficha[1] <9 && ficha[1] >=0 && tableroDamas->array[ficha[0]][ficha[1]] == dama)||fichaEnArray(fichasConPosibleCaptura, contadorPosiblesCapturas,ficha[0],ficha[1]) == 0);
+        }while (!(str[1] == ',' && ficha[0] <9 && ficha[0] >=0 && ficha[1] <9 && ficha[1] >=0 && (tableroDamas->array[ficha[0]][ficha[1]] == dama || tableroDamas->array[ficha[0]][ficha[1]] == damaReina))||fichaEnArray(fichasConPosibleCaptura, contadorPosiblesCapturas,ficha[0],ficha[1]) == 0);
         //Este if sirve para saber si la captura es hacia la izquierda o hacia la derecha.
         if (hayPiezaEnProximidad(*tableroDamas,numJugador,0,ficha[0],ficha[1],0) == 1)
         {
             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]-2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
             tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]-1] = 0;
+            if (ficha[0] == 7 || ficha[0] == 0)
+            {
+             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]-2] = damaReina;   
+            }
+            
         }else{
             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
             tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]+1] = 0;
+             if (ficha[0] == 7 || ficha[0] == 0)
+            {
+             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = damaReina;   
+            }
         }
         *piezasAdversario -= 1;
         
@@ -450,7 +459,7 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             fgets(str, 2, stdin);
             movimiento = str[0] - 48;
             fgets(str,2,stdin);
-            if ((ficha[1] == 0 && movimiento == 1) || (ficha[1] == 7 && movimiento == 2) || (((ficha[0] == 0 && sentidoMovimiento == 1) || (ficha[0] == 7 && sentidoMovimiento == -1))&& movimiento != 5))
+            if ((ficha[1] == 0 && movimiento == 1) || (ficha[1] == 7 && movimiento == 2) || (((ficha[0] == 0 && sentidoMovimiento == 1 && isdamaReina ==0) || (ficha[0] == 7 && sentidoMovimiento == -1 && isdamaReina ==0))&& movimiento != 5))
             {
                 printf("Este movimiento sacaria la ficha del tablero (invalido)\n");
                 goto labelMovimiento;
@@ -543,138 +552,72 @@ int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int fi
     int sentidoMovimiento;
     int outOfBoundsLeft = 0;
     int outOfBoundsRight = 0;
+    int ajustadorComparacion;
     if (bando == 1)
     {
         sentidoMovimiento = 1;
-        if (filaFicha < 0 )
-        {
-            return 5;
-        }
-        
     }else{
         sentidoMovimiento = -1;
-        if (filaFicha > 7 )
-        {
-            return 5;
-        }
     } if(preferenciaOutOfBounds != 0){
-    if (!((columnaFicha-1)<0))
+        ajustadorComparacion = 0;
+        }else{
+            ajustadorComparacion = 1;
+        }
+    if (!((columnaFicha-1)<(0+ajustadorComparacion) && filaFicha > 7*(bando-1)))
             {
         if ((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1)))
         {
-                printf("(Izquierda) Coordenadas ficha :%i,%i", filaFicha-sentidoMovimiento,columnaFicha-1);
                 return 1;
             }
         }else{outOfBoundsLeft = 1;
         }
-        if (!((columnaFicha+1)>7))
+        if (!((columnaFicha+1)>(7-ajustadorComparacion) && filaFicha > 7*(bando-1)))
             {
                 if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
-                printf("(Derecha) Coordenadas ficha :%i,%i", filaFicha-sentidoMovimiento,columnaFicha+1);
                 return 2;
             }
-        }else{outOfBoundsRight = 1;} if(!((columnaFicha-1)<0))
+        }else{outOfBoundsRight = 1;} if(!((columnaFicha-1)<(0+ajustadorComparacion)  && filaFicha > 7*(bando-1)))
             {
                 if((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] != 0)){
                 return 3;
             }
-        }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7))
+        }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>(7-ajustadorComparacion) && filaFicha > 7*(bando-1)))
             {
                 if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] != 0){
                 return 4;
             }
-        }else{outOfBoundsRight = 1;}
+        }else{outOfBoundsRight = 1;
+        }
         if (isReina == 1)
         {
-            if (!((columnaFicha-1)<0))
+            if (!((columnaFicha-1)<0+ajustadorComparacion))
             {
             if (tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1))
             {
                 return 1;
             }
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7))
+            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7-ajustadorComparacion))
             {
                 if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
                 return 2;
             }
-            }else{outOfBoundsRight = 1;}if (!((columnaFicha-1)<0))
+            }else{outOfBoundsRight = 1;}if (!((columnaFicha-1)<0+ajustadorComparacion))
             {
                 if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] != 0){
                 return 3;
             }
             
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7))
+            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7-ajustadorComparacion))
             {
                 if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] != 0){
                 return 4;
             }
         }else{outOfBoundsRight = 1;}
         }
-        printf("%i,%i no tiene fichas contiguas", filaFicha, columnaFicha);
         if ((preferenciaOutOfBounds == 1 && outOfBoundsLeft == 1) || (preferenciaOutOfBounds == 2 && outOfBoundsRight == 1) )
         {
             return 5;
         }
-    }else{
-        if (!((columnaFicha-1)<=0))
-            {
-        if ((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1)))
-        {
-                printf("(Izquierda) Coordenadas ficha :%i,%i", filaFicha-sentidoMovimiento,columnaFicha-1);
-                return 1;
-            }
-        }else{outOfBoundsLeft = 1;
-        }
-        if (!((columnaFicha+1)>=7))
-            {
-                if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
-                printf("(Derecha) Coordenadas ficha :%i,%i", filaFicha-sentidoMovimiento,columnaFicha+1);
-                return 2;
-            }
-        }else{outOfBoundsRight = 1;} if(!((columnaFicha-1)<=0))
-            {
-                if((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] != 0)){
-                return 3;
-            }
-        }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>=7))
-            {
-                if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] != 0){
-                return 4;
-            }
-        }else{outOfBoundsRight = 1;}
-        if (isReina == 1)
-        {
-            if (!((columnaFicha-1)<=0))
-            {
-            if (tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1))
-            {
-                return 1;
-            }
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>=7))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
-                return 2;
-            }
-            }else{outOfBoundsRight = 1;}if (!((columnaFicha-1)<=0))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] != 0){
-                return 3;
-            }
-            
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>=7))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] != 0){
-                return 4;
-            }
-        }else{outOfBoundsRight = 1;}
-        }
-        printf("%i,%i no tiene fichas contiguas", filaFicha, columnaFicha);
-        if ((preferenciaOutOfBounds == 1 && outOfBoundsLeft == 1) || (preferenciaOutOfBounds == 2 && outOfBoundsRight == 1) )
-        {
-            return 5;
-        }
-    }
-        
         return 0;
         
     /*}else{
@@ -707,7 +650,7 @@ int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int fil
         sentidoMovimiento = -1;
     }
     if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha,0) == 1)
-    { 
+    {
         if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) != 5)
         {
             if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) !=3 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) !=1 ){
@@ -728,12 +671,9 @@ int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int fil
         }
         
     }else if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha,0) == 2){
-        printf("En pieza proxima derecha 1");
         if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 5)
         {
-            printf("En pieza proxima derecha 1 no invalido");
             if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 4 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 2){
-                printf("En pieza proxima derecha 2");
             return 1;
             }
             if (isDama)
@@ -759,5 +699,11 @@ int fichaEnArray(int** arrayFichas, int tamanyoArray, int filaFicha, int columna
         }
     }
     return 0;
+    
+}
+FILE* crearCSVPartida(char* fichero){
+    FILE* fich = fopen(fichero, "w");
+}
+void almacenarDatosPartida(char codigo[5], int resultado, bool activa, char juego[15], struct tm fecha, char registroMov[100], bool amistosoCom, char codigotorneo[5]){
     
 }

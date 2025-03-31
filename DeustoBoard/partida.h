@@ -1,6 +1,7 @@
 #ifndef PARTIDA_H_
 #define PARTIDA_H_
 #include <stdbool.h>
+#include <stdio.h>
 #include "usuario.h"
 #include <time.h>
 
@@ -52,5 +53,9 @@ int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int fil
 int fichaEnArray(int** arrayFichas, int tamanyoArray, int filaFicha, int columnaFicha);
 
 void partidaDamas();
+
+FILE* crearCSVPartida(char* fichero);
+
+void almacenarDatosPartida(char codigo[5], int resultado, bool activa, char juego[15], struct tm fecha, char registroMov[100], bool amistosoCom, char codigotorneo[5]);
 
 #endif
