@@ -24,7 +24,7 @@ typedef struct{
     e.fecha.tm_mon = 3;  // Meses van de 0 (enero) a 11 (diciembre)
     e.fecha.tm_year = 2025 - 1900;  // tm_year cuenta desde 1900
 */
-Partida crearPartida();
+Partida crearPartida(int tipoJuego);
 bool buscarAmigo();
 void metodoEjemploPartida();
 int seleccionarJugadorAleatorio();

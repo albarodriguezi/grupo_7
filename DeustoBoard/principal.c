@@ -8,6 +8,8 @@
 #include "dibujos.h"
 #include "partidaCuatroRaya.h"
 
+int modoJuegoSeleccionado = 1; //El modo de juego que el jugador seleccionará, por defecto 1 (damas)
+
 void paginaPrincipal();
 void casePaginaPrincipal(int opcion);
 
@@ -51,15 +53,18 @@ void elegirModoJuego(){
     {
     case 1:
         printf("Has elegido Damas\n");
+        modoJuegoSeleccionado = 1;
         paginaPrincipal();
         break;
     case 2:
         printf("Has elegido Ajedrez\n");
+        modoJuegoSeleccionado = 2;
         paginaPrincipal();
         break;
     case 3:
         printf("Has elegido Cuatro en Raya\n");
-        menuCuatroRaya();
+        modoJuegoSeleccionado = 3;
+        paginaPrincipal();
         break;
     default:
         printf("No es una opcion valida");
@@ -71,19 +76,19 @@ void casePaginaPrincipal(int opcion) {
     system("cls");
     switch (opcion) {
         case 1:
-            crearPartida();
+            crearPartida(modoJuegoSeleccionado);
             break;
         case 2:
-            metodoEjemploPartida();
+            metodoEjemploPartida(); //a modificar todavía
             break;
         case 3:
-            metodoEjemploTorneo();
+            metodoEjemploTorneo(); //a modificar todavía
             break;
         case 4:
-            metodoEjemploPartida();
+            metodoEjemploPartida(); //a modificar todavíaa
             break;
         case 5:
-            metodoEjemploTorneo();
+            metodoEjemploTorneo(); //a modificar todavía
             break;  
         case 6:
             printf("Saliendo de DEUSTO BOARD\n");

@@ -8,6 +8,7 @@
 #include "usuario.h"
 #include "database.h"
 #include "sqlite3.h"
+#include "partidaCuatroRaya.h"
 #include <time.h>
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -26,7 +27,7 @@ void metodoEjemploPartida(){
 }
 Usuario *listaUsuario;
 
-Partida crearPartida(){
+Partida crearPartida(int tipoJuego){
     createDB();
     csvToDatabaseUsuario();
     Partida partida;
@@ -54,13 +55,28 @@ Partida crearPartida(){
         int n = seleccionarJugadorAleatorio();
         printf("Jugaras contra el jugador: <%s>", listaUsuario[n].nombreUsuario);
         //aqui tiene que ir a la partida para jugar contra uno aleatorio
-        metodoEjemploPartida();
+
+        if (tipoJuego == 1) {
+            metodoEjemploPartida(); //partida de damas
+        } else if (tipoJuego == 2) {
+            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
+        } else if (tipoJuego == 3) {
+            menuCuatroRaya(); //partida de cuatro en raya
+        }
         free(listaUsuario);
         return partida;
     case 2:
         if(buscarAmigo()){
             //aqui empezaria la partida con un amigo, (guardar nombre de usuario para los resultados de la partida3)
-            metodoEjemploPartida();
+        
+        if (tipoJuego == 1) {
+            metodoEjemploPartida(); //partida de damas
+        } else if (tipoJuego == 2) {
+            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
+        } else if (tipoJuego == 3) {
+            menuCuatroRaya(); //partida de cuatro en raya
+        }
+        
             return partida;
         }else{
             break;
