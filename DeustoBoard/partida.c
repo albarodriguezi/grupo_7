@@ -36,7 +36,13 @@ Partida crearPartida(int tipoJuego){
     srand(time(NULL));
     for(int i = 0; i < 4; i++){
         partida.codigo[i] = rand() % 10;
+        partida.codigotorneo[i] = rand() % 10;
+
     }
+    partida.codigo[4] = '\0';
+    partida.codigotorneo[4] = '\0';
+    time_t t = time(NULL);
+    partida.fecha = *localtime(&t);
 
     do{
     printf("El codigo de la partida es: %d%d%d%d\n", partida.codigo[0], partida.codigo[1], partida.codigo[2], partida.codigo[3]);
@@ -148,11 +154,11 @@ void partidaDamas(Partida* partida){
     printf("\nIniciando partida a las Damas...\n");
     Tablero8x8 tableroDamas = crearTableroDamas();
     partida->juego[0] = 'D';
-    partida->juego[0] = 'a';
-    partida->juego[0] = 'm';
-    partida->juego[0] = 'a';
-    partida->juego[0] = 's';
-    partida->juego[0] = '\0';
+    partida->juego[1] = 'a';
+    partida->juego[2] = 'm';
+    partida->juego[3] = 'a';
+    partida->juego[4] = 's';
+    partida->juego[5] = '\0';
 
     imprimirTableroDamas(tableroDamas);
     int isGameOver = 0;
@@ -724,8 +730,8 @@ void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct
     
     fprintf(fichero,"CODPARTIDA,RESULTADO,JUEGO,AÑO,MES,DÍA,CODTORNEO\n");
     //Cod partida es 1111 porque de momento si no no funciona
-    fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%s\n",1, 1, 1, 1,resultado,juego,fecha.tm_year,fecha.tm_mon,fecha.tm_mday, codigotorneo);
-    csvToDatabasePartida();
+    fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%i%i%i%i",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
     fclose(fichero);
+    csvToDatabasePartida();
     fichero = NULL;
 }
