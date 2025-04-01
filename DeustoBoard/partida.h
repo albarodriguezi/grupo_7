@@ -62,4 +62,5 @@ FILE* crearCSVPartida(char* fichero);
 
 void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero);
 
+Partida unirsePartida(int tipoJuego);
 #endif

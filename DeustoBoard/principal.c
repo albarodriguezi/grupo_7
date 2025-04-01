@@ -74,10 +74,10 @@ void casePaginaPrincipal(int opcion) {
             crearPartida(modoJuegoSeleccionado);
             break;
         case 2:
-            metodoEjemploPartida(); //a modificar todavía
+            unirsePartida(modoJuegoSeleccionado); //a modificar todavía
             break;
         case 3:
-            unirseTorneo(modoJuegoSeleccionado); //a modificar todavía
+            unirseTorneo(modoJuegoSeleccionado); 
             break;
         case 4:
             metodoEjemploPartida(); //a modificar todavíaa

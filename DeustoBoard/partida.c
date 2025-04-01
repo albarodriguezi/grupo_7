@@ -26,6 +26,7 @@ void metodoEjemploPartida(){
     //printf("Ha concluido la partida\n");
 }
 Usuario *listaUsuario;
+Partida *listaPartida;
 
 Partida crearPartida(int tipoJuego){
     createDB();
@@ -96,8 +97,8 @@ return partida;
 }
 
 bool buscarAmigo(){
-    createDB();
-    csvToDatabaseUsuario();
+    //createDB();
+    //csvToDatabaseUsuario();
     listaUsuario = getListaUsuario();
     char str[20];
     char nombreUsuario[20];
@@ -733,3 +734,77 @@ void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct
     csvToDatabasePartida();
     fichero = NULL;
 }
+
+Partida unirsePartida(int tipoJuego){
+    //createDB();
+    //csvToDatabasePartida();
+    //csvToDatabaseUsuario();
+    listaPartida = getListaPartida();
+    printf("Elija una partida de esta lista introduciendo su codigo: \n\n");
+    listaUsuario = getListaUsuario();
+    Partida partida;
+    int longitud = lineasFichero("partidas.csv");
+    char str[10];
+    char cod[10];
+
+    printf("Elija una partida de esta lista introduciendo su codigo: \n\n");
+    int i;
+    for(i = 1; i < longitud-1; i++){
+        if (tipoJuego == 1 && strcmp(listaPartida[i].juego,"Damas")==0){
+            printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", i+1, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+        }else if(tipoJuego == 2 && strcmp(listaPartida[i].juego,"4enRaya")==0){
+            printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", i+1, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+        }
+        /*else if (tipoJuego==2){
+            printf("%s\n",listaPartida[i].juego);
+        }*/
+    }
+    printf("Escribe el codigo: ");
+    fflush(stdin);
+    fgets(cod, 5, stdin);
+    fflush(stdin);
+
+    cod[strcspn(cod, "\n")] = '\0';
+
+    int aleatorio = seleccionarJugadorAleatorio();
+    for(int i = 0; i < longitud; i++){
+        if(strcmp(cod, listaPartida[i].codigo) == 0){
+            printf("Contrasenya correcta: \n");
+            printf("Uniendo a una partida... \n");
+            printf("Jugaras contra <%s> \n", listaUsuario[aleatorio].nombreUsuario);
+
+            //aqui empieza la partida a la que se une
+            if (tipoJuego == 1) {
+                partida = getPartida(cod);
+                partidaDamas(&partida); //partida de damas
+                return partida;
+            } else if (tipoJuego == 2) {
+                partida = getPartida(cod);
+                menuCuatroRaya(&partida); //partida de cuatro en raya
+                return partida;
+            }
+            free(listaUsuario);
+            return partida;
+        }
+    }
+    
+    char opcion[5];
+    do {
+        printf("El codigo introducido no coincide con ninguna partida.\nQuiere volver a intentarlo? S/N\n");
+        fflush(stdin);
+        fgets(str, 5, stdin);
+        sscanf(str, "%s", &opcion);
+    } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
+
+    if (opcion[0] == 's' || opcion[0] == 'S') {
+        unirsePartida(tipoJuego);
+    } else {
+        printf("Saliendo del sistema.\n");
+        paginaPrincipal();
+    }
+    
+
+    return partida;
+    
+}
+
