@@ -29,8 +29,8 @@ int lineasFichero(char* f)
 Usuario* getListaUsuario(){
     sqlite3 *db;
 	sqlite3_stmt *stmt;
-    char sql2[] = "select * from USUARIO";
-    char sql3[] = "select count(*) from USUARIO";
+    char sql2[] = "select * from USUARIO;COMMIT";
+    char sql3[] = "select count(*) from USUARIO;COMMIT";
     sqlite3_open("database.sqlite", &db);
     
 	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
@@ -65,8 +65,8 @@ Usuario* getListaUsuario(){
 Partida* getListaPartida(){
     sqlite3 *db;
 	sqlite3_stmt *stmt;
-    char sql2[] = "select * from PARTIDA";
-    char sql3[] = "select count(*) from PARTIDA";
+    char sql2[] = "select * from PARTIDA;COMMIT";
+    char sql3[] = "select count(*) from PARTIDA;COMMIT";
     sqlite3_open("database.sqlite", &db);
     
 	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
@@ -150,12 +150,13 @@ void csvToDatabase(){
 }
 
 */
+
 Usuario getUsuario(char *email)
 {
     Usuario u;
     sqlite3 *db;
 	sqlite3_stmt *stmt;
-    char sql2[] = "select * from USUARIO where EMAIL = ?";
+    char sql2[] = "select * from USUARIO where EMAIL = ?;COMMIT";
     sqlite3_open("database.sqlite", &db);
     sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
     sqlite3_bind_text(stmt, 1, email, strlen(email), SQLITE_TRANSIENT);
@@ -174,7 +175,6 @@ Usuario getUsuario(char *email)
 	} while (result == SQLITE_ROW);
 	//printf("\n");
 	sqlite3_finalize(stmt);
-
 	sqlite3_close(db);
     return u;
 }
@@ -183,7 +183,7 @@ Partida getPartida(char *codigo)
     Partida p;
     sqlite3 *db;
 	sqlite3_stmt *stmt;
-    char sql2[] = "select * from PARTIDA where CODPARTIDA = ?";
+    char sql2[] = "select * from PARTIDA where CODPARTIDA = ?;COMMIT";
     sqlite3_open("database.sqlite", &db);
     sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
     sqlite3_bind_text(stmt, 1, codigo, strlen(codigo), SQLITE_TRANSIENT);
@@ -214,6 +214,42 @@ Partida getPartida(char *codigo)
 	sqlite3_close(db);
     return p;
 }
+
+void saveUsuario(Usuario u){
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    sqlite3_open("database.sqlite", &db);
+    //sqlite3_busy_timeout(db, 10000); 
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+    int result;
+    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?);COMMIT";
+	
+        // Bind values to the SQL statement
+        //printf("%s\n",users[50].email);
+        sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, u.email, strlen(u.email), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, u.nombreUsuario, strlen(u.nombreUsuario), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, u.contrasenya, strlen(u.contrasenya), SQLITE_TRANSIENT);
+
+        // Execute the SQL statement
+        
+        result = sqlite3_step(stmt);
+        printf("%i\n",result);
+        if (result != SQLITE_DONE) {
+            printf("Error inserting user %s: %s\n", u.nombreUsuario, sqlite3_errmsg(db));
+        } else {
+            printf("Usuario insertado: %s\n", u.nombreUsuario);
+        }
+        sqlite3_reset(stmt);
+        
+	
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+}
+void savePartida(Partida p)
+{
+}
 void createDB()
 {
     sqlite3 *db;
@@ -222,9 +258,9 @@ void createDB()
 
 	sqlite3_open("database.sqlite", &db);
 
-    char sql1[] = "CREATE TABLE IF NOT EXISTS USUARIO(EMAIL TEXT PRIMARY KEY NOT NULL,USERNAME TEXT NOT NULL,PASSWORD TEXT)";
-    char sql2[] = "CREATE TABLE IF NOT EXISTS PARTIDA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,CODTORNEO TEXT NOT NULL,JUEGO TEXT,RESULTADO INT,FECHA DATE)";
-	char sql3[] = "CREATE TABLE IF NOT EXISTS PARTICIPA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,USERA TEXT NOT NULL,USERB TEXT)";
+    char sql1[] = "CREATE TABLE IF NOT EXISTS USUARIO(EMAIL TEXT PRIMARY KEY NOT NULL,USERNAME TEXT NOT NULL,PASSWORD TEXT);COMMIT";
+    char sql2[] = "CREATE TABLE IF NOT EXISTS PARTIDA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,CODTORNEO TEXT NOT NULL,JUEGO TEXT,RESULTADO INT,FECHA DATE);COMMIT";
+	char sql3[] = "CREATE TABLE IF NOT EXISTS PARTICIPA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,USERA TEXT NOT NULL,USERB TEXT);COMMIT";
     sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
 	result = sqlite3_step(stmt);
@@ -244,7 +280,7 @@ void createDB()
     //else{
 		//printf("Tabla  insertado\n");
 	//}
-    //sqlite3_finalize(db);
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 }
 
@@ -255,9 +291,9 @@ void deleteDB(){
 
 	sqlite3_open("database.sqlite", &db);
 
-    char sql1[] = "DROP TABLE IF EXISTS USUARIO";
-    char sql2[] = "DROP TABLE IF EXISTS PARTIDA";
-    char sql3[] = "DROP TABLE IF EXISTS PARTICIPA";
+    char sql1[] = "DROP TABLE IF EXISTS USUARIO;COMMIT";
+    char sql2[] = "DROP TABLE IF EXISTS PARTIDA;COMMIT";
+    char sql3[] = "DROP TABLE IF EXISTS PARTICIPA;COMMIT";
 
 	sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
@@ -283,7 +319,7 @@ void deleteDB(){
 	}else{
 		printf("Tabla  insertado\n");
 	}
-    //sqlite3_finalize(db);
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 }
 
@@ -361,8 +397,8 @@ void csvToDatabaseUsuario() {
 	sqlite3_stmt *stmt;
 	int result;
 	sqlite3_open("database.sqlite", &db);
-
-    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?)";
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?);COMMIT";
     int i = 0;
 	
     for (int i = 0; i < num-1; i++) {
@@ -389,7 +425,8 @@ void csvToDatabaseUsuario() {
         
     }
 	
-    //sqlite3_finalize(db);
+    sqlite3_finalize(stmt);
+    sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
     sqlite3_close(db);
 	
 
@@ -493,7 +530,7 @@ void csvToDatabasePartida() {
 	int result;
 	sqlite3_open("database.sqlite", &db);
 
-    char sql1[] = "insert into PARTIDA (CODPARTIDA,RESULTADO,JUEGO,FECHA,CODTORNEO) values (?, ?, ?, ?, ?)";
+    char sql1[] = "insert into PARTIDA (CODPARTIDA,RESULTADO,JUEGO,FECHA,CODTORNEO) values (?, ?, ?, ?, ?);COMMIT";
     int i = 0;
 	
     for (int i = 0; i < num-1; i++) {
@@ -531,7 +568,7 @@ void csvToDatabasePartida() {
         
     }
 	
-    //sqlite3_finalize(db);
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 	
 
@@ -615,7 +652,7 @@ void csvToDatabaseParticipa() {
 	int result;
 	sqlite3_open("database.sqlite", &db);
 
-    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?)";
+    char sql1[] = "insert into USUARIO (EMAIL,USERNAME,PASSWORD) values (?, ?, ?);COMMIT";
     int i = 0;
 	
     for (int i = 0; i < num-1; i++) {
@@ -642,7 +679,7 @@ void csvToDatabaseParticipa() {
         
     }
 	
-    //sqlite3_finalize(db);
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 	
 
