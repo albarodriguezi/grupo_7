@@ -197,10 +197,10 @@ void unirseTorneo(int modoJuegoSeleccionado) {
             // Convertirlo a la estructura tm (hora local)
             struct tm tmFecha = *localtime(&t);
             partidaEjemplo.fecha = tmFecha;
-            if (modoJuegoSeleccionado = 1){
+            if (modoJuegoSeleccionado == 1){
                 strcpy(partidaEjemplo.juego,"Damas");
                 partidaDamas(&partidaEjemplo);
-            }else if(modoJuegoSeleccionado = 2){
+            }else if(modoJuegoSeleccionado == 2){
                 strcpy(partidaEjemplo.juego,"CuatroEnRaya");
                 menuCuatroRaya(&partidaEjemplo);
             }
