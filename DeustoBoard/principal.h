@@ -7,4 +7,6 @@ void casePaginaPrincipal(int opcion);
 
 void elegirModoJuego();
 
+void partidasDisponibles(int opcion);
+
 #endif

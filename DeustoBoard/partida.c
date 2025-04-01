@@ -67,7 +67,6 @@ Partida crearPartida(int tipoJuego){
             partidaDamas(&partida); //partida de damas
         }else if (tipoJuego == 2) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
-            printf("ItIsHere");
             csvToDatabasePartida();
         }
         free(listaUsuario);
@@ -80,7 +79,6 @@ Partida crearPartida(int tipoJuego){
             partidaDamas(&partida); //partida de damas
         } else if (tipoJuego == 2) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
-            printf("ItIsHere");
             csvToDatabasePartida();
             
         }
@@ -171,7 +169,7 @@ void partidaDamas(Partida* partida){
     char str[4];
     int movimiento;
     FILE * fichero = crearCSVPartida("partidas.csv");
-    char nomlog[11];
+    char nomlog[20];
     sprintf(nomlog,"Logs/LOG%i%i%i.log",partida->fecha.tm_year+1900,partida->fecha.tm_mon,partida->fecha.tm_mday);
     FILE * log = fopen(nomlog, "a");
     fprintf(log, "PartidaLasDamas_%i%i%i%i\n",partida->codigo[0],partida->codigo[1],partida->codigo[2],partida->codigo[3]);
@@ -187,6 +185,7 @@ void partidaDamas(Partida* partida){
         {
             isGameOver = 1;
             fprintf(log,"GANANNEGRAS\n");
+            
             fflush(log);
             partida->resultado = 2;
             break;
@@ -758,15 +757,20 @@ FILE* crearCSVPartida(char* fichero){
 void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero){
     
     fprintf(fichero,"codigoPartida,resultado,juego,anyo,mes,dia,codigoTorneo\n");
+    fflush(fichero);
     if (fecha.tm_mday <10 && fecha.tm_mon <10)
     {
         fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+        fflush(fichero);
     }else if(fecha.tm_mday <10){
         fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+        fflush(fichero);
     }else if(fecha.tm_mon <10){
         fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+        fflush(fichero);
     }else{
         fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+        fflush(fichero);
     }
     fclose(fichero);
     //csvToDatabasePartida();

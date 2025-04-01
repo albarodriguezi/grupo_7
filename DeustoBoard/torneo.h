@@ -3,6 +3,7 @@
 
 #ifndef TORNEO_H_
 #define TORNEO_H_
+#include <time.h>
 
 typedef struct{
     char codt[5];

@@ -185,7 +185,12 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
     FILE* fichero = crearCSVPartida("partidas.csv"); //cuál es el fichero
     strcpy(partida->juego, "CuatroRaya");
     almacenarDatosPartida(partida->codigo, 0, partida->juego, partida->fecha, partida->codigotorneo, fichero);
-    
+    //Logger
+    char nomlog[20];
+    sprintf(nomlog,"Logs/LOG%i%i%i.log",partida->fecha.tm_year+1900,partida->fecha.tm_mon,partida->fecha.tm_mday);
+    FILE * log = fopen(nomlog, "a");
+    fprintf(log, "PartidaCuatroRaya_%i%i%i%i\n",partida->codigo[0],partida->codigo[1],partida->codigo[2],partida->codigo[3]);
+    fflush(log);
 
     int turno = 0; //turno 0 corresponde a jugador 1, turno 1 corresponde a jugador 2
     char fichaJugador[2] = {'X', 'O'};
@@ -204,15 +209,21 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
             printf("Columna completamente llena. Por favor, elige otra:\n");
         } else {
             //victoria, empate y cambiar de turnos
-
+            fprintf(log,"Jugador %i: columna %i\n", turno+1,columnaSeleccionada);
+            fflush(log);
             if (hayGanador(tablero, fichaJugador[turno])) {
                 imprimirTableroCuatroRaya(tablero);
 
                 printf("JUGADOR %d HA GANADO. \n", turno + 1);
             
                 partida->resultado = turno + 1; //jugador 1 = 1, jugador 2 = 2
+                fprintf(log,"JUGADOR %d HA GANADO.\n", turno + 1);
+                fflush(log);
+                fprintf(log,"FINCUATRORAYA\n");
+                fflush(log);
+                fclose(log);
+                log = NULL;
                 almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se guardan los datos
-
                 char opcion[5]; //la respuesta del jugador
                 do {
                     printf("Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");
@@ -220,6 +231,7 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
                     fgets(opcion, sizeof(opcion), stdin);
                 } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
                 fclose(fichero);
+                fichero == NULL;
                 if (opcion[0] == 's' || opcion[0] == 'S') {
                     paginaPrincipal();
                 } else {
@@ -233,7 +245,12 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
             if (tableroLleno(tablero)) {
                 imprimirTableroCuatroRaya(tablero);
                 printf("EMPATE. El tablero esta lleno\n");
-                
+                fprintf(log,"EMPATE. \n");
+                fflush(log);
+                fprintf(log,"FINCUATRORAYA \n");
+                fflush(log);
+                fclose(log);
+                log = NULL;
                 partida->resultado = 0; //empate = 0
                 almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se almacenan los datos
                 fclose(fichero);

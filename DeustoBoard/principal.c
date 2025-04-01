@@ -95,3 +95,6 @@ void casePaginaPrincipal(int opcion) {
             break;
     }
 }
+    void partidasDisponibles(int opcion){
+       //POR RELLENAR
+    }
