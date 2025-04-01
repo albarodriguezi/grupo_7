@@ -16,8 +16,9 @@ typedef struct{
 
 //void metodoEjemploTorneo();
 //void cargarTorneosCSV();
+time_t convertirFecha(char* fecha);
 void cargarTorneosEjemplo();
 void unirseTorneo(int modoJuegoSeleccionado);
-void torneosDisponibles(int modoJuegoSeleccionado);
+void torneosDisponibles(int opcion);
 
 #endif

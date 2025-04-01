@@ -74,16 +74,16 @@ void casePaginaPrincipal(int opcion) {
             crearPartida(modoJuegoSeleccionado);
             break;
         case 2:
-            unirsePartida(modoJuegoSeleccionado); //a modificar todavía
+            unirsePartida(modoJuegoSeleccionado); 
             break;
         case 3:
             unirseTorneo(modoJuegoSeleccionado); 
             break;
         case 4:
-            metodoEjemploPartida(); //a modificar todavíaa
+            partidasDisponibles(opcion); //a modificar todavíaa
             break;
         case 5:
-            torneosDisponibles(modoJuegoSeleccionado); //a modificar todavía
+            torneosDisponibles(opcion); //a modificar todavía
             break;  
         case 6:
             printf("Saliendo de DEUSTO BOARD\n");
