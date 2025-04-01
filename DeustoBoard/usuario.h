@@ -9,9 +9,9 @@ typedef struct{
 
 void menuRegistrarse();
 
-void caseRegistro(char letra);
+void caseRegistro(char letra, Usuario u);
 
-void caseInicioSesion(char letra);
+void caseInicioSesion(char letra, Usuario u);
 
 void menuInicioSesion();
 
