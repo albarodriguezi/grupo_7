@@ -67,7 +67,7 @@ Partida crearPartida(int tipoJuego){
         } else if (tipoJuego == 2) {
             metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
         } else if (tipoJuego == 3) {
-            menuCuatroRaya(); //partida de cuatro en raya
+            menuCuatroRaya(&partida); //partida de cuatro en raya
         }
         free(listaUsuario);
         return partida;
@@ -76,11 +76,11 @@ Partida crearPartida(int tipoJuego){
             //aqui empezaria la partida con un amigo, (guardar nombre de usuario para los resultados de la partida3)
         
         if (tipoJuego == 1) {
-            metodoEjemploPartida(); //partida de damas
+            metodoEjemploPartida(&partida); //partida de damas
         } else if (tipoJuego == 2) {
             metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
         } else if (tipoJuego == 3) {
-            menuCuatroRaya(); //partida de cuatro en raya
+            menuCuatroRaya(&partida); //partida de cuatro en raya
         }
         
             return partida;

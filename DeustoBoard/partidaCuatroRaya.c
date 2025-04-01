@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "partidaCuatroRaya.h"
 #include "principal.h"
+#include <string.h>
 
 int fichasGanadoras[4][2] = {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}}; //por ahora no las hay, por eso -1
 
@@ -161,7 +162,7 @@ int tableroLleno(char tablero[FILAS][COLUMNAS]) { //función que detecta si el t
 
 
 
-void menuCuatroRaya() { //función principal del cuatro en raya, que se encarga de actualizar el programa hasta que uno de los dos jugadores gane o haya empate
+void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya, que se encarga de actualizar el programa hasta que uno de los dos jugadores gane o haya empate
     printf("\n***MENU CUATRO EN RAYA***\n");
     //printf("implementamos el juego aqui, en construccion por ahora.\n");
     //printf("tablero de ejemplo:\n");
@@ -180,6 +181,11 @@ void menuCuatroRaya() { //función principal del cuatro en raya, que se encarga 
     fichasGanadoras[i][0] = -1;
     fichasGanadoras[i][1] = -1;
     }
+
+    FILE* fichero = crearCSVPartida("partidas.csv"); //cuál es el fichero
+    strcpy(partida->juego, "CuatroRaya");
+    almacenarDatosPartida(partida->codigo, 0, partida->juego, partida->fecha, partida->codigotorneo, fichero);
+
 
     int turno = 0; //turno 0 corresponde a jugador 1, turno 1 corresponde a jugador 2
     char fichaJugador[2] = {'X', 'O'};
@@ -201,8 +207,12 @@ void menuCuatroRaya() { //función principal del cuatro en raya, que se encarga 
 
             if (hayGanador(tablero, fichaJugador[turno])) {
                 imprimirTableroCuatroRaya(tablero);
+
                 printf("JUGADOR %d HA GANADO. \n", turno + 1);
             
+                partida->resultado = turno + 1; //jugador 1 = 1, jugador 2 = 2
+                almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se guardan los datos
+
                 char opcion[5]; //la respuesta del jugador
                 do {
                     printf("Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");
@@ -224,6 +234,9 @@ void menuCuatroRaya() { //función principal del cuatro en raya, que se encarga 
                 imprimirTableroCuatroRaya(tablero);
                 printf("EMPATE. El tablero esta lleno\n");
                 
+                partida->resultado = 0; //empate = 0
+                almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se almacenan los datos
+
                 char opcion[5]; //la respuesta del jugador
                 do {
                     printf("Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");

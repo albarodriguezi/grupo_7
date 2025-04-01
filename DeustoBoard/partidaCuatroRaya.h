@@ -9,7 +9,9 @@
 #define ANSI_COLOR_YELLOW "\x1b[33m" //color de ficha amarilla (ganadora)
 #define ANSI_COLOR_RESET   "\x1b[0m" //para reiniciar el color del terminal
 
-void menuCuatroRaya(void);
+#include "partida.h"
+
+void menuCuatroRaya(Partida* partida);
 
 void imprimirTableroCuatroRaya(char tablero[FILAS][COLUMNAS]);
 
