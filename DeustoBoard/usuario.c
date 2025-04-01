@@ -82,7 +82,7 @@ void menuInicioSesion(){
     printf("************************INICIO DE SESION***************************** \n");
     printf("********************************************************************* \n");
 
-    printf("Introduce el nombre de usuario: ");
+    printf("Introduce el email del usuario: ");
 	fflush(stdout);
     fflush(stdin);
 
@@ -141,29 +141,53 @@ void caseInicioSesion(char tecla, Usuario u){
     system("cls");
 	switch (tecla) {
         case 'I':
-            {Usuario uDB = getUsuario(u.nombreUsuario);  // Usamos tu función existente para obtener el usuario
+            //obtenemos el usuario
+            {Usuario uDB = getUsuario(u.email);  
             
-        // Verificamos si el usuario existe y si la contraseña coincide
-            if (strcmp(uDB.nombreUsuario, u.nombreUsuario) == 0 && strcmp(uDB.contrasenya, u.contrasenya) == 0) {
-                printf("Inicio de sesión exitoso!\n");
-                elegirModoJuego();
-            } else {
-                printf("Email o contraseña incorrectos.\n");
-                menuInicioSesion();
-            }
-            }break;
+        // comprobamos que el email existe en la base de datos
+        if (strlen(uDB.email) == 0) {
+            printf("No existe una cuenta con ese email.\n");
+            menuInicioSesion();
+            return;
+        }
+        
+        // comprobamos que la contraseña coincida con la contraseña del usuario en el dataset
+        if (uDB.contrasenya !=  u.contrasenya) {
+            printf("Contrasenya correcta.\n");
+            elegirModoJuego();
+            return;
+        }else{
+            printf("Contrasenya incorrecta\n");
+            menuInicioSesion();
+        }
+        
+        // 
+        printf("Inicio de sesión correcto\n");
+        elegirModoJuego();
+        }
+        break;
         case 'i':
-            {Usuario uDB = getUsuario(u.email);  // Usamos tu función existente para obtener el usuario
+            {Usuario uDB = getUsuario(u.email);
             
-            // Verificamos si el usuario existe y si la contraseña coincide
-                if (strcmp(uDB.nombreUsuario, u.nombreUsuario) == 0 && strcmp(uDB.contrasenya, u.contrasenya) == 0) {
-                    printf("Inicio de sesión exitoso!\n");
+                //comprobamos si el usuario existe
+                if (strlen(uDB.email) == 0) {
+                    printf("Error: No existe una cuenta con ese email.\n");
+                    menuInicioSesion();
+                    return;
+                }
+                
+                // Verificar contraseña
+                if (uDB.contrasenya !=  u.contrasenya) {
+                    printf("Contrasenya correcta.\n");
                     elegirModoJuego();
-                } else {
-                    printf("Email o contraseña incorrectos.\n");
+                    return;
+                }else{
+                    printf("Contrasenya incorrecta\n");
                     menuInicioSesion();
                 }
-            }break;
+                
+            }
+            break;
         case 'E':
             printf("saliendo de DEUSTO BOARD");
             break;
@@ -171,7 +195,7 @@ void caseInicioSesion(char tecla, Usuario u){
             printf("saliendo de DEUSTO BOARD");
             break;
         default:
-            printf("Tecla inválida. Inténtalo de nuevo.\n");
+            printf("Tecla invalida. Intentalo de nuevo.\n");
             menuInicioSesion(tecla);
             break;
     }
