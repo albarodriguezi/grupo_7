@@ -43,7 +43,7 @@ void elegirModoJuego(){
     int opcion;
     system("cls");
     printf("\nElegir juego: \n");
-    printf("1. Damas\n2. Ajedrez\n3. Cuatro en raya\n");
+    printf("1. Damas\n2. Cuatro en raya\n");
     fgets(str, sizeof(str), stdin);
     sscanf(str, "%d", &opcion);
     fflush(stdin);
@@ -57,13 +57,8 @@ void elegirModoJuego(){
         paginaPrincipal();
         break;
     case 2:
-        printf("Has elegido Ajedrez\n");
-        modoJuegoSeleccionado = 2;
-        paginaPrincipal();
-        break;
-    case 3:
         printf("Has elegido Cuatro en Raya\n");
-        modoJuegoSeleccionado = 3;
+        modoJuegoSeleccionado = 2;
         paginaPrincipal();
         break;
     default:
@@ -82,13 +77,13 @@ void casePaginaPrincipal(int opcion) {
             metodoEjemploPartida(); //a modificar todavía
             break;
         case 3:
-            unirseTorneo(); //a modificar todavía
+            unirseTorneo(modoJuegoSeleccionado); //a modificar todavía
             break;
         case 4:
             metodoEjemploPartida(); //a modificar todavíaa
             break;
         case 5:
-            torneosDisponibles(); //a modificar todavía
+            torneosDisponibles(modoJuegoSeleccionado); //a modificar todavía
             break;  
         case 6:
             printf("Saliendo de DEUSTO BOARD\n");

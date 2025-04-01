@@ -64,9 +64,7 @@ Partida crearPartida(int tipoJuego){
 
         if (tipoJuego == 1) {
             partidaDamas(&partida); //partida de damas
-        } else if (tipoJuego == 2) {
-            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
-        } else if (tipoJuego == 3) {
+        }else if (tipoJuego == 2) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
         }
         free(listaUsuario);
@@ -78,8 +76,6 @@ Partida crearPartida(int tipoJuego){
         if (tipoJuego == 1) {
             metodoEjemploPartida(&partida); //partida de damas
         } else if (tipoJuego == 2) {
-            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
-        } else if (tipoJuego == 3) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
         }
         
@@ -168,13 +164,15 @@ void partidaDamas(Partida* partida){
     //Necesito este string para recoger el input
     char str[4];
     int movimiento;
+    /*
     FILE * fichero = crearCSVPartida("partidas.csv");
     printf(partida->codigo);
     almacenarDatosPartida(partida->codigo,0,partida->juego,partida->fecha,partida->codigotorneo,fichero);
+    */
     //Bucle del juego
     do
     {
-        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB, fichero);
+        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB);
         printf("Quedan %i fichas blancas\n",numDamasB);
         if (numDamasB <= 0)
         {
@@ -183,7 +181,7 @@ void partidaDamas(Partida* partida){
             break;
         }
         
-        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN, fichero);
+        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN);
         printf("Quedan %i fichas negras\n",numDamasN);
         if (numDamasN <= 0)
         {
@@ -194,7 +192,7 @@ void partidaDamas(Partida* partida){
         
     } while (isGameOver != 1);
     printf("Ha concluido la partida\n");
-    almacenarDatosPartida(partida->codigo,partida->resultado,partida->juego,partida->fecha,partida->codigotorneo,fichero);
+    almacenarDatosPartida(partida->codigo,partida->resultado,partida->juego,partida->fecha,partida->codigotorneo,NULL);
     
 }
 
@@ -343,7 +341,7 @@ void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna)
         printf("\n");
     }
 }
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, FILE* fichero){
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario){
     int ficha[2];
     int dama;
     int damaReina;
