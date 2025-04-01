@@ -229,19 +229,27 @@ Partida getPartida(char *codigo)
             strcpy(p.codigotorneo,(char*) sqlite3_column_text(stmt, 1));
 			
             }
+            
             i++;
 		
 	} while (result == SQLITE_ROW);
-    printf("%i",i);
+    //printf("%i\n",i);
     int j; 
     char sql4[] = "select * from PARTICIPA where CODPARTIDA = ?;COMMIT";
-    sqlite3_prepare_v2(db, sql4, strlen(sql2), &stmt, NULL) ;
-    
+    sqlite3_prepare_v2(db, sql4, strlen(sql4), &stmt, NULL) ;
     sqlite3_bind_text(stmt, 1, p.codigo, strlen(p.codigo), SQLITE_TRANSIENT);
     result = sqlite3_step(stmt);
+    char usa[50];
+    char usb[50];
+    //printf("%s\n",(char*) sqlite3_column_text(stmt, 2));
+    strcpy(usa,(char*) sqlite3_column_text(stmt, 1));
+    //printf("%s\n",usa);
+    strcpy(usb,(char*) sqlite3_column_text(stmt, 2));
+    printf("%i\n",result);
+    printf("%s\n",usb);
 	if (result == SQLITE_ROW) {
-        p.usuarioA = getUsuario((char*) sqlite3_column_text(stmt, 2));
-        p.usuarioB = getUsuario((char*) sqlite3_column_text(stmt, 3));
+        p.usuarioA = getUsuario(usa);
+        p.usuarioB = getUsuario(usb);
 	}
     
 
