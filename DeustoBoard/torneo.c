@@ -170,7 +170,7 @@ void unirseTorneo(int modoJuegoSeleccionado) {
     snprintf(codtchar, sizeof(codtchar), "%d", codigoTorneo);
 
     for (int i = 0; i < numTorneos; i++) {
-        if (torneos[i].codt == codtchar) {
+        if (strcmp(torneos[i].codt,codtchar)==0) {
             printf("*******************************INFO TORNEO***********************************\n");
             printf("\tNombre del torneo: %s \n", torneos[i].nombret);
             printf("\tCodigo del torneo: %s \n", torneos[i].codt);
