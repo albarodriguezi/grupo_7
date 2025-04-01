@@ -220,23 +220,19 @@ void unirseTorneo(int modoJuegoSeleccionado) {
     torneosDisponibles(modoJuegoSeleccionado);
 }
 
-void torneosDisponibles(int opcion) {
+void torneosDisponibles(int modoJuegoSeleccionado) {
     numTorneos = lineasFichero("torneo.csv"); 
-    torneos = getListaTorneo();
+    cargarTorneosEjemplo();
     if (numTorneos == 0) {
         printf("No hay torneos disponibles.\n");
         return;
     }
 
     //printf("***********************TORNEOS DISPONIBLES******************************\n");
-    time_t ahora;
-    time(&ahora);
-    printf("***********************TORNEOS DISPONIBLES******************************\n");
     for (int i = 0; i < numTorneos-1; i++) {
-        if (convertirFecha(torneos[i].fechaf) > ahora) {
-            printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
-        }
+        printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
     }
+    /*
     fflush(stdin);
     char str[5];
     //system("cls");
@@ -245,5 +241,5 @@ void torneosDisponibles(int opcion) {
     fflush(stdin);
 
     paginaPrincipal();
-
+    */
 }

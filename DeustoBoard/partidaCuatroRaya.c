@@ -181,11 +181,11 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
     fichasGanadoras[i][0] = -1;
     fichasGanadoras[i][1] = -1;
     }
-    
+    /*
     FILE* fichero = crearCSVPartida("partidas.csv"); //cuál es el fichero
     strcpy(partida->juego, "CuatroRaya");
     almacenarDatosPartida(partida->codigo, 0, partida->juego, partida->fecha, partida->codigotorneo, fichero);
-    
+    */
 
     int turno = 0; //turno 0 corresponde a jugador 1, turno 1 corresponde a jugador 2
     char fichaJugador[2] = {'X', 'O'};
@@ -211,7 +211,7 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
                 printf("JUGADOR %d HA GANADO. \n", turno + 1);
             
                 partida->resultado = turno + 1; //jugador 1 = 1, jugador 2 = 2
-                almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se guardan los datos
+                //almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se guardan los datos
 
                 char opcion[5]; //la respuesta del jugador
                 do {
@@ -219,7 +219,7 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
                     fflush(stdin);
                     fgets(opcion, sizeof(opcion), stdin);
                 } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
-                fclose(fichero);
+
                 if (opcion[0] == 's' || opcion[0] == 'S') {
                     paginaPrincipal();
                 } else {
@@ -235,8 +235,8 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
                 printf("EMPATE. El tablero esta lleno\n");
                 
                 partida->resultado = 0; //empate = 0
-                almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se almacenan los datos
-                fclose(fichero);
+                //almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se almacenan los datos
+
                 char opcion[5]; //la respuesta del jugador
                 do {
                     printf("Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");

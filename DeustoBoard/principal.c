@@ -80,7 +80,7 @@ void casePaginaPrincipal(int opcion) {
             unirseTorneo(modoJuegoSeleccionado); 
             break;
         case 4:
-            partidasDisponibles(opcion); //a modificar todavíaa
+            verPartidasDisponibles(modoJuegoSeleccionado); //a modificar todavíaa
             break;
         case 5:
             torneosDisponibles(opcion); //a modificar todavía

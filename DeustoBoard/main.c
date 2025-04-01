@@ -9,6 +9,7 @@
 
 int main(void) {
 	system("cls");
+	//deleteDB();
 	createDB();
 	csvToDatabaseUsuario();
 	csvToDatabasePartida();
