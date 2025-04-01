@@ -4,12 +4,14 @@
 #include "usuario.h"
 #include "dibujos.h"
 #include "principal.h"
+#include "database.h"
 
 
 void menuRegistrarse();
-void caseRegistro(char tecla);
-void caseInicioSesion(char tecla);
+void caseRegistro(char tecla, Usuario u);
+void caseInicioSesion(char tecla, Usuario u);
 void menuInicioSesion();
+
 
 void menuRegistrarse(){
 
@@ -39,14 +41,14 @@ void menuRegistrarse(){
     fflush(stdin);
 
     fgets(bufer, sizeof(bufer), stdin);
-    sscanf(bufer, "%s", u.contrasenya);
+    sscanf(bufer, "%s", u.nombreUsuario);
 
     printf("Introduce la contrasenya de usuario: ");
 	fflush(stdout);
     fflush(stdin);
 
     fgets(bufer, sizeof(bufer), stdin);
-    sscanf(bufer, "%c", &tecla);
+    sscanf(bufer, "%s", u.contrasenya);
 
     printf("\n");
     printf("Registro de usuario. \n");
@@ -58,7 +60,7 @@ void menuRegistrarse(){
     fgets(bufer, sizeof(bufer), stdin);
     sscanf(bufer, "%c", &tecla);
 
-    caseRegistro(tecla);
+    caseRegistro(tecla, u);
 
 
 }
@@ -80,7 +82,7 @@ void menuInicioSesion(){
     printf("************************INICIO DE SESION***************************** \n");
     printf("********************************************************************* \n");
 
-    printf("Introduce el nombre de usuario: ");
+    printf("Introduce el email del usuario: ");
 	fflush(stdout);
     fflush(stdin);
 
@@ -103,19 +105,23 @@ void menuInicioSesion(){
     fgets(bufer, sizeof(bufer), stdin);
     sscanf(bufer, "%c", &tecla);
 
-    caseInicioSesion(tecla);
+    caseInicioSesion(tecla, u);
 
 }
 
-void caseRegistro(char tecla){
+void caseRegistro(char tecla, Usuario u){
 
     system("cls");
 	switch (tecla) {
         case 'I':
+            saveUsuario(u);
             menuInicioSesion();
+            printf("registro correcto");
             break;
         case 'i':
+            saveUsuario(u);
             menuInicioSesion();
+            printf("registro correcto");
             break;
         case 'E':
             printf("saliendo de DEUSTO BOARD");
@@ -130,15 +136,57 @@ void caseRegistro(char tecla){
     }
 }
 
-void caseInicioSesion(char tecla){
+void caseInicioSesion(char tecla, Usuario u){
 
     system("cls");
 	switch (tecla) {
         case 'I':
+            //obtenemos el usuario
+            {Usuario uDB = getUsuario(u.email);  
+            
+        // comprobamos que el email existe en la base de datos
+        if (strlen(uDB.email) == 0) {
+            printf("No existe una cuenta con ese email.\n");
+            menuInicioSesion();
+            return;
+        }
+        
+        // comprobamos que la contraseña coincida con la contraseña del usuario en el dataset
+        if (uDB.contrasenya !=  u.contrasenya) {
+            printf("Contrasenya correcta.\n");
             elegirModoJuego();
-            break;
+            return;
+        }else{
+            printf("Contrasenya incorrecta\n");
+            menuInicioSesion();
+        }
+        
+        // 
+        printf("Inicio de sesión correcto\n");
+        elegirModoJuego();
+        }
+        break;
         case 'i':
-            elegirModoJuego();
+            {Usuario uDB = getUsuario(u.email);
+            
+                //comprobamos si el usuario existe
+                if (strlen(uDB.email) == 0) {
+                    printf("Error: No existe una cuenta con ese email.\n");
+                    menuInicioSesion();
+                    return;
+                }
+                
+                // Verificar contraseña
+                if (uDB.contrasenya !=  u.contrasenya) {
+                    printf("Contrasenya correcta.\n");
+                    elegirModoJuego();
+                    return;
+                }else{
+                    printf("Contrasenya incorrecta\n");
+                    menuInicioSesion();
+                }
+                
+            }
             break;
         case 'E':
             printf("saliendo de DEUSTO BOARD");
@@ -147,7 +195,7 @@ void caseInicioSesion(char tecla){
             printf("saliendo de DEUSTO BOARD");
             break;
         default:
-            printf("Tecla inválida. Inténtalo de nuevo.\n");
+            printf("Tecla invalida. Intentalo de nuevo.\n");
             menuInicioSesion(tecla);
             break;
     }
