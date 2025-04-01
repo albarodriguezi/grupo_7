@@ -4,6 +4,7 @@
 #include "partida.h"
 #include "sqlite3.h"
 #include <string.h>
+#include "torneo.h"
 #include "database.h"
 #include <time.h>
 
@@ -122,6 +123,65 @@ Partida* getListaPartida(){
 	sqlite3_close(db);
 
     return PartList;
+}
+
+Torneo* getListaTorneo(){
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from TORNEO;COMMIT";
+    char sql3[] = "select count(*) from TORNEO;COMMIT";
+    char sql4[] = "select * from PARTICIPA where CODPARTIDA = ?;COMMIT";
+    char sql5[] = "select count(*) from PARTICIPA;COMMIT";
+    
+    sqlite3_open("database.sqlite", &db);
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+	sqlite3_prepare_v2(db, sql3, strlen(sql3), &stmt, NULL) ;
+    sqlite3_step(stmt);
+	printf("\n");
+    int count = sqlite3_column_int(stmt, 0);
+    Torneo* tornList = (Torneo*)malloc((count) * sizeof(Torneo));
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+            strcpy(tornList[i].codt,(char*) sqlite3_column_text(stmt, 0));
+            strcpy(tornList[i].fechai,(char*) sqlite3_column_text(stmt, 1));
+            strcpy(tornList[i].fechaf,(char*) sqlite3_column_text(stmt, 2));
+            strcpy(tornList[i].nombret,(char*) sqlite3_column_text(stmt, 3));
+            
+            i++;
+		}
+	} while (result == SQLITE_ROW);
+	//printf("\n");
+    //printf("%s\n",userList[49].email);
+    /*
+    int j; 
+    sqlite3_prepare_v2(db, sql4, strlen(sql2), &stmt, NULL) ;
+    for (j=0;j<i;j++){
+        sqlite3_bind_text(stmt, 1, PartList[j].codigo, strlen(PartList[j].codigo), SQLITE_TRANSIENT);
+        result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+            PartList[j].usuarioA = getUsuario((char*) sqlite3_column_text(stmt, 2));
+            PartList[j].usuarioB = getUsuario((char*) sqlite3_column_text(stmt, 3));
+		}
+    };
+    
+    
+    do {
+        
+	} while (result == SQLITE_ROW);
+    */
+	sqlite3_finalize(stmt);
+
+
+    //sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
+	/* --- SELECT (fin) --- */
+
+	sqlite3_close(db);
+
+    return tornList;
 }
 /*
 void csvToDatabase(){
@@ -242,15 +302,16 @@ Partida getPartida(char *codigo)
     char usa[50];
     char usb[50];
     //printf("%s\n",(char*) sqlite3_column_text(stmt, 2));
-    strcpy(usa,(char*) sqlite3_column_text(stmt, 1));
+    //strcpy(usa,(char*) sqlite3_column_text(stmt, 1));
     //printf("%s\n",usa);
-    strcpy(usb,(char*) sqlite3_column_text(stmt, 2));
-    printf("%i\n",result);
-    printf("%s\n",usb);
+    //strcpy(usb,(char*) sqlite3_column_text(stmt, 2));
+    //printf("%i\n",result);
+    //printf("%s\n",usb);
 	if (result == SQLITE_ROW) {
         p.usuarioA = getUsuario(usa);
         p.usuarioB = getUsuario(usb);
 	}
+    
     
 
 	//printf("\n");
@@ -258,6 +319,61 @@ Partida getPartida(char *codigo)
     //sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
 	sqlite3_close(db);
     return p;
+}
+
+Torneo getTorneo(char *codigo)
+{
+    Torneo t;
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+    char sql2[] = "select * from TORNRO where CODTORNEO = ?;COMMIT";
+    sqlite3_open("database.sqlite", &db);
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+    sqlite3_prepare_v2(db, sql2, strlen(sql2), &stmt, NULL) ;
+    sqlite3_bind_text(stmt, 1, codigo, strlen(codigo), SQLITE_TRANSIENT);
+    int result;
+    int i = 0;
+	do {
+        result = sqlite3_step(stmt);
+        
+		if (result == SQLITE_ROW) {
+            strcpy(t.codt,(char*) sqlite3_column_text(stmt, 0));
+            strcpy(t.fechai,(char*) sqlite3_column_text(stmt, 1));
+            strcpy(t.fechaf,(char*) sqlite3_column_text(stmt, 2));
+            strcpy(t.nombret,(char*) sqlite3_column_text(stmt, 3));
+			
+            }
+            
+            i++;
+		
+	} while (result == SQLITE_ROW);
+    //printf("%i\n",i);
+    /*
+    int j; 
+    char sql4[] = "select * from PARTICIPA where CODPARTIDA = ?;COMMIT";
+    sqlite3_prepare_v2(db, sql4, strlen(sql4), &stmt, NULL) ;
+    sqlite3_bind_text(stmt, 1, p.codigo, strlen(p.codigo), SQLITE_TRANSIENT);
+    result = sqlite3_step(stmt);
+    char usa[50];
+    char usb[50];
+    //printf("%s\n",(char*) sqlite3_column_text(stmt, 2));
+    //strcpy(usa,(char*) sqlite3_column_text(stmt, 1));
+    //printf("%s\n",usa);
+    //strcpy(usb,(char*) sqlite3_column_text(stmt, 2));
+    //printf("%i\n",result);
+    //printf("%s\n",usb);
+	if (result == SQLITE_ROW) {
+        p.usuarioA = getUsuario(usa);
+        p.usuarioB = getUsuario(usb);
+	}
+    
+    
+    */
+	//printf("\n");
+	sqlite3_finalize(stmt);
+    //sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
+	sqlite3_close(db);
+    return t;
 }
 
 void saveUsuario(Usuario u){
@@ -355,6 +471,8 @@ void createDB()
     char sql1[] = "CREATE TABLE IF NOT EXISTS USUARIO(EMAIL TEXT PRIMARY KEY NOT NULL,USERNAME TEXT NOT NULL,PASSWORD TEXT);COMMIT";
     char sql2[] = "CREATE TABLE IF NOT EXISTS PARTIDA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,CODTORNEO TEXT NOT NULL,JUEGO TEXT,RESULTADO INT,FECHA DATE);COMMIT";
 	char sql3[] = "CREATE TABLE IF NOT EXISTS PARTICIPA(CODPARTIDA TEXT PRIMARY KEY NOT NULL,USERA TEXT NOT NULL,USERB TEXT);COMMIT";
+    char sql4[] = "CREATE TABLE IF NOT EXISTS TORNEO(CODTORNEO TEXT PRIMARY KEY NOT NULL,FECHAI TEXT ,FECHAF TEXT,NOMTORNEO TEXT);COMMIT";
+    char sql5[] = "CREATE TABLE IF NOT EXISTS REGISTRADO(CODTORNEO TEXT NOT NULL,EMAIL TEXT NOT NULL,PRIMARY KEY (CODTORNEO,EMAIL));COMMIT";
     sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
 	result = sqlite3_step(stmt);
@@ -367,6 +485,16 @@ void createDB()
 		printf("Error insertando tabla\n");
 	}
     sqlite3_prepare_v2(db, sql3, strlen(sql3) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}
+    sqlite3_prepare_v2(db, sql4, strlen(sql4) + 1, &stmt, NULL) ;
+    result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		printf("Error insertando tabla\n");
+	}
+    sqlite3_prepare_v2(db, sql5, strlen(sql5) + 1, &stmt, NULL) ;
     result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
 		printf("Error insertando tabla\n");
@@ -390,6 +518,7 @@ void deleteDB(){
     char sql1[] = "DROP TABLE IF EXISTS USUARIO;COMMIT";
     char sql2[] = "DROP TABLE IF EXISTS PARTIDA;COMMIT";
     char sql3[] = "DROP TABLE IF EXISTS PARTICIPA;COMMIT";
+
 
 	sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL) ;
 
@@ -787,6 +916,237 @@ void csvToDatabaseParticipa() {
 	
 
     free(partidas);
+
+    // Close the file
+    fclose(file);
+}
+
+void csvToDatabaseTorneo() {
+    
+    char line[1024];          // Buffer to store a line
+    int count = 0;     // Number of users read
+    Torneo* torneos;    // Pointer to dynamically store users
+    int num;
+    num = lineasFichero("torneo.csv");
+    //rewind(file);
+    FILE *file = fopen("torneo.csv", "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+     // Skip the first line (header)
+     if (fgets(line, sizeof(line), file) == NULL) {
+        printf("File is empty or unable to read the header.\n");
+        fclose(file);
+        return;
+    }
+    torneos = (Torneo*) malloc(num * sizeof(Torneo));
+
+    while (fgets(line, sizeof(line), file)) {
+        // Remove trailing newline, if present
+        line[strcspn(line, "\r\n")] = '\0';
+
+        // Dynamically allocate memory for a new user
+        
+        if (!torneos) {
+            perror("Memory allocation failed");
+            fclose(file);
+            return;
+        }
+
+        // Split the line into tokens and populate the struct
+        char *token = strtok(line, ",");
+        int csv_inx = 0;  // Reset csv_inx for each row
+
+        while (token != NULL) {
+            switch (csv_inx) {
+                case 0:
+                    strcpy(torneos[count].codt, token);
+                    //printf("%s\n",token);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    //sscanf(token,"%i",&partidas[count].resultado);
+                    strcpy(torneos[count].fechai, token);
+                    //printf("%i\n",partidas[count].resultado);
+                    break;
+                case 3:
+                    strcpy(torneos[count].fechaf, token);
+                    break;
+                case 4:
+                    strcpy(torneos[count].nombret, token);
+                    //printf("%s\n",token);
+                    break;
+                default:
+                    break;
+            }
+            token = strtok(NULL, ",");
+            csv_inx++;
+            
+        }
+        
+        count++;  // Increment the number of users read
+        
+    }
+    //printf("%s\n",users[3].contrasenya);
+    /*
+    // Print a specific user's email for verification (e.g., user 30)
+    if (person_count > 30) {
+        printf("User 30's email: %s\n", users[30].email);
+    } else {
+        printf("Not enough users in the file to display user 30.\n");
+    }
+    */
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+	int result;
+	sqlite3_open("database.sqlite", &db);
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+
+    char sql1[] = "insert into TORNEO (CODTORNEO,FECHAI,FECHAF,NOMTORNEO) values (?, ?, ?, ?);COMMIT";
+    int i = 0;
+	
+    for (int i = 0; i < num-1; i++) {
+        // Bind values to the SQL statement
+        //printf("%s\n",users[50].email);
+        
+        sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, torneos[i].codt, strlen(torneos[i].codt), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, torneos[i].fechai, strlen(torneos[i].fechai), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, torneos[i].fechaf, strlen(torneos[i].fechaf), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 4, torneos[i].nombret, strlen(torneos[i].nombret), SQLITE_TRANSIENT);
+
+
+        // Execute the SQL statement
+        
+        result = sqlite3_step(stmt);
+        //printf("%s\n",users[50].email);
+        /*
+        if (result != SQLITE_DONE) {
+            printf("Error inserting user %s: %s\n", users[i].nombreUsuario, sqlite3_errmsg(db));
+        } else {
+            printf("Usuario insertado: %s\n", users[i].nombreUsuario);
+        }
+        */
+        // Reset the statement to reuse it for the next user
+        sqlite3_reset(stmt);
+        
+    }
+	
+    sqlite3_finalize(stmt);
+    //sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
+    sqlite3_close(db);
+	
+
+    free(torneos);
+
+    // Close the file
+    fclose(file);
+}
+
+void csvToDatabaseRegistrado() {
+    
+    char line[1024];          // Buffer to store a line
+    int person_count = 0;     // Number of users read
+    Torneo *torneos;    // Pointer to dynamically store users
+    int num;
+    num = lineasFichero("usuariotorneo.csv");
+    //rewind(file);
+    FILE *file = fopen("usuariotorneo.csv", "r");
+    if (!file) {
+        perror("Unable to open file");
+        return;
+    }
+     // Skip the first line (header)
+     if (fgets(line, sizeof(line), file) == NULL) {
+        printf("File is empty or unable to read the header.\n");
+        fclose(file);
+        return;
+    }
+    torneos = (Torneo*) malloc(num * sizeof(Torneo));
+
+    while (fgets(line, sizeof(line), file)) {
+        // Remove trailing newline, if present
+        line[strcspn(line, "\r\n")] = '\0';
+
+        // Dynamically allocate memory for a new user
+        
+        if (!torneos) {
+            perror("Memory allocation failed");
+            fclose(file);
+            return;
+        }
+
+        // Split the line into tokens and populate the struct
+        char *token = strtok(line, ",");
+        int csv_inx = 0;  // Reset csv_inx for each row
+
+        while (token != NULL) {
+            switch (csv_inx) {
+                case 0:
+                    strcpy(torneos[person_count].codt, token);
+                    break;
+                case 1:
+                    strcpy(torneos[person_count].ganador, token);
+                    break;
+                default:
+                    break;
+            }
+            token = strtok(NULL, ",");
+            csv_inx++;
+            
+        }
+        
+        person_count++;  // Increment the number of users read
+        
+    }
+    //printf("%s\n",users[3].contrasenya);
+    /*
+    // Print a specific user's email for verification (e.g., user 30)
+    if (person_count > 30) {
+        printf("User 30's email: %s\n", users[30].email);
+    } else {
+        printf("Not enough users in the file to display user 30.\n");
+    }
+    */
+    sqlite3 *db;
+	sqlite3_stmt *stmt;
+	int result;
+	sqlite3_open("database.sqlite", &db);
+    sqlite3_exec(db, "PRAGMA journal_mode=WAL;", 0, 0, 0);
+    char sql1[] = "insert into REGISTRADO (CODTORNEO,EMAIL) values (?, ?);COMMIT";
+    int i = 0;
+	
+    for (int i = 0; i < num-1; i++) {
+        // Bind values to the SQL statement
+        //printf("%s\n",users[50].email);
+        sqlite3_prepare_v2(db, sql1, strlen(sql1) + 1, &stmt, NULL);
+        sqlite3_bind_text(stmt, 1, torneos[i].codt, strlen(torneos[i].codt), SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, torneos[i].ganador, strlen(torneos[i].ganador), SQLITE_TRANSIENT);
+
+        // Execute the SQL statement
+        
+        result = sqlite3_step(stmt);
+        //printf("%s\n",users[50].email);
+        /*
+        if (result != SQLITE_DONE) {
+            printf("Error inserting user %s: %s\n", users[i].nombreUsuario, sqlite3_errmsg(db));
+        } else {
+            printf("Usuario insertado: %s\n", users[i].nombreUsuario);
+        }
+        */
+        // Reset the statement to reuse it for the next user
+        sqlite3_reset(stmt);
+        
+    }
+	
+    sqlite3_finalize(stmt);
+    //sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
+    sqlite3_close(db);
+	
+
+    free(torneos);
 
     // Close the file
     fclose(file);

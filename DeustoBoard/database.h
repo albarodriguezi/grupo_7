@@ -2,10 +2,13 @@
 #define DATABASE_H_
 #include "usuario.h"
 #include "partida.h"
+#include "torneo.h"
 
 void csvToDatabaseUsuario();
 void csvToDatabasePartida();
 void csvToDatabaseParticipa();
+void csvToDatabaseTorneo();
+void csvToDatabaseRegistrado();
 
 void dibujoPerfil();
 
@@ -15,6 +18,7 @@ void createDB();
 
 Usuario* getListaUsuario();
 Partida* getListaPartida();
+Torneo* getListaTorneo();
 
 Usuario getUsuario(char * email);
 Partida getPartida(char * codigo);
