@@ -156,7 +156,17 @@ void unirseTorneo(int modoJuegoSeleccionado) {
     cargarTorneosEjemplo();
     int codigoTorneo;
     printf("*************************TORNEOS DISPONIBLES****************************\n");
-    torneosDisponibles(modoJuegoSeleccionado);
+    numTorneos = lineasFichero("torneo.csv"); 
+    cargarTorneosEjemplo();
+    if (numTorneos == 0) {
+        printf("No hay torneos disponibles.\n");
+        return;
+    }
+
+    //printf("***********************TORNEOS DISPONIBLES******************************\n");
+    for (int i = 0; i < numTorneos-1; i++) {
+        printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
+    }
     printf("\n*******************INTRODUZCA CODIGO TORNEO AL QUE SE QUIERE UNIR******************\n");
     numTorneos = lineasFichero("torneo.csv");
     int c;
@@ -217,7 +227,7 @@ void unirseTorneo(int modoJuegoSeleccionado) {
     }
 
     printf("Código no válido\n");
-    torneosDisponibles(modoJuegoSeleccionado);
+    //torneosDisponibles(modoJuegoSeleccionado);
 }
 
 void torneosDisponibles(int modoJuegoSeleccionado) {
@@ -232,14 +242,13 @@ void torneosDisponibles(int modoJuegoSeleccionado) {
     for (int i = 0; i < numTorneos-1; i++) {
         printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
     }
-    /*
+    
     fflush(stdin);
     char str[5];
     //system("cls");
     printf("\nClick enter to exit: \n");
     fgets(str, sizeof(str), stdin);
     fflush(stdin);
-
     paginaPrincipal();
-    */
+    
 }
