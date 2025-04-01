@@ -17,6 +17,9 @@ typedef struct{
     char registroMov[100];
     bool amistosoCom;
     char codigotorneo[5];
+    Usuario usuarioA;
+    Usuario usuarioB;
+
 
 }Partida;
 /*

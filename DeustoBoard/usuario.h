@@ -1,5 +1,5 @@
-#ifndef REGISTRARSE_H_
-#define REGISTRARSE_H_
+#ifndef USUARIO_H_
+#define USUARIO_H_
 
 typedef struct{
     char email[50];
