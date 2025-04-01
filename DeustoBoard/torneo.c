@@ -96,6 +96,7 @@ void torneosDisponibles() {
 #include "torneo.h"
 #include "dibujos.h"
 #include "partida.h"
+#include "principal.h"
 #include "partidaCuatroRaya.h"
 #include <time.h>
 #include "database.h"
@@ -219,16 +220,30 @@ void unirseTorneo(int modoJuegoSeleccionado) {
     torneosDisponibles(modoJuegoSeleccionado);
 }
 
-void torneosDisponibles(int modoJuegoSeleccionado) {
+void torneosDisponibles(int opcion) {
     numTorneos = lineasFichero("torneo.csv"); 
-    cargarTorneosEjemplo();
+    torneos = getListaTorneo();
     if (numTorneos == 0) {
         printf("No hay torneos disponibles.\n");
         return;
     }
 
     //printf("***********************TORNEOS DISPONIBLES******************************\n");
+    time_t ahora;
+    time(&ahora);
+    printf("***********************TORNEOS DISPONIBLES******************************\n");
     for (int i = 0; i < numTorneos-1; i++) {
-        printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
+        if (convertirFecha(torneos[i].fechaf) > ahora) {
+            printf("\t %d. %s (Codigo: %s)\n", i+1, torneos[i].nombret, torneos[i].codt);
+        }
     }
+    fflush(stdin);
+    char str[5];
+    //system("cls");
+    printf("\nClick enter to exit: \n");
+    fgets(str, sizeof(str), stdin);
+    fflush(stdin);
+
+    paginaPrincipal();
+
 }
