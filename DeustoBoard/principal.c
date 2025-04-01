@@ -82,13 +82,13 @@ void casePaginaPrincipal(int opcion) {
             metodoEjemploPartida(); //a modificar todavía
             break;
         case 3:
-            metodoEjemploTorneo(); //a modificar todavía
+            unirseTorneo(); //a modificar todavía
             break;
         case 4:
             metodoEjemploPartida(); //a modificar todavíaa
             break;
         case 5:
-            metodoEjemploTorneo(); //a modificar todavía
+            torneosDisponibles(); //a modificar todavía
             break;  
         case 6:
             printf("Saliendo de DEUSTO BOARD\n");
