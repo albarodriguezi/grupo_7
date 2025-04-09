@@ -38,7 +38,6 @@ typedef struct{
     int array[8][8];
 }Tablero8x8;
 
-void metodoEjemploPartida();
 
 Tablero8x8 crearTableroDamas();
 
@@ -48,7 +47,7 @@ void imprimirTableroDamas(Tablero8x8 tablero);
 
 void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna);
 
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int * piezasAdversario);
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int * piezasAdversario, FILE * log );
 //void turnoJugador2(Tablero8x8* tableroDamas, char str[4], int movimiento);
 int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha, int preferenciaOutOfBounds);
 
@@ -65,5 +64,7 @@ void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct
 Partida unirsePartida(int tipoJuego);
 
 void verPartidasDisponibles(int tipoJuego);
+
+void partidasDisponibles(int opcion);
 
 #endif
