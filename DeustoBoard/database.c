@@ -98,6 +98,7 @@ Partida* getListaPartida(){
 	} while (result == SQLITE_ROW);
 	//printf("\n");
     //printf("%s\n",userList[49].email);
+    /*
     int j; 
     sqlite3_prepare_v2(db, sql4, strlen(sql2), &stmt, NULL) ;
     for (j=0;j<i;j++){
@@ -113,7 +114,7 @@ Partida* getListaPartida(){
     do {
         
 	} while (result == SQLITE_ROW);
-
+    */
 	sqlite3_finalize(stmt);
 
 

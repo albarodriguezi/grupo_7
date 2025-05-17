@@ -19,13 +19,8 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
-void metodoEjemploPartida(){
-    printf("\nestas en la pagina de las partidas");
-    //Comentar esta siguiente función para impedir que comience una partida a las damas
-    //partidaDamas();
-    //printf("Ha concluido la partida\n");
-}
 Usuario *listaUsuario;
+Partida *listaPartida;
 
 Partida crearPartida(int tipoJuego){
     createDB();
@@ -64,10 +59,9 @@ Partida crearPartida(int tipoJuego){
 
         if (tipoJuego == 1) {
             partidaDamas(&partida); //partida de damas
-        } else if (tipoJuego == 2) {
-            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
-        } else if (tipoJuego == 3) {
+        }else if (tipoJuego == 2) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
+            csvToDatabasePartida();
         }
         free(listaUsuario);
         return partida;
@@ -76,11 +70,11 @@ Partida crearPartida(int tipoJuego){
             //aqui empezaria la partida con un amigo, (guardar nombre de usuario para los resultados de la partida3)
         
         if (tipoJuego == 1) {
-            metodoEjemploPartida(&partida); //partida de damas
+            partidaDamas(&partida); //partida de damas
         } else if (tipoJuego == 2) {
-            metodoEjemploPartida(); //AQUÍ SE INCLUIRÁ LA LÓGICA DEL AJEDREZ
-        } else if (tipoJuego == 3) {
             menuCuatroRaya(&partida); //partida de cuatro en raya
+            csvToDatabasePartida();
+            
         }
         
             return partida;
@@ -100,8 +94,8 @@ return partida;
 }
 
 bool buscarAmigo(){
-    createDB();
-    csvToDatabaseUsuario();
+    //createDB();
+    //csvToDatabaseUsuario();
     listaUsuario = getListaUsuario();
     char str[20];
     char nombreUsuario[20];
@@ -169,31 +163,43 @@ void partidaDamas(Partida* partida){
     char str[4];
     int movimiento;
     FILE * fichero = crearCSVPartida("partidas.csv");
-    printf(partida->codigo);
+    char nomlog[11];
+    sprintf(nomlog,"Logs/LOG%i%i%i.log",partida->fecha.tm_year+1900,partida->fecha.tm_mon,partida->fecha.tm_mday);
+    FILE * log = fopen(nomlog, "a");
+    fprintf(log, "PartidaLasDamas_%i%i%i%i\n",partida->codigo[0],partida->codigo[1],partida->codigo[2],partida->codigo[3]);
+    fflush(log);
     almacenarDatosPartida(partida->codigo,0,partida->juego,partida->fecha,partida->codigotorneo,fichero);
+    csvToDatabasePartida();
     //Bucle del juego
     do
     {
-        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB, fichero);
+        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB, log);
         printf("Quedan %i fichas blancas\n",numDamasB);
         if (numDamasB <= 0)
         {
             isGameOver = 1;
+            fprintf(log,"GANANNEGRAS\n");
+            fflush(log);
             partida->resultado = 2;
             break;
         }
         
-        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN, fichero);
+        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN, log);
         printf("Quedan %i fichas negras\n",numDamasN);
         if (numDamasN <= 0)
         {
             isGameOver = 1;
+            fprintf(log,"GANANBLANCAS\n");
+            fflush(log);
             partida->resultado = 1;
         }
 
         
     } while (isGameOver != 1);
     printf("Ha concluido la partida\n");
+    fprintf(log,"FINPARTIDA\n");
+    fflush(log);
+    fclose(log);
     almacenarDatosPartida(partida->codigo,partida->resultado,partida->juego,partida->fecha,partida->codigotorneo,fichero);
     
 }
@@ -343,7 +349,7 @@ void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna)
         printf("\n");
     }
 }
-void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, FILE* fichero){
+void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, FILE * log){
     int ficha[2];
     int dama;
     int damaReina;
@@ -416,6 +422,8 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]-2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
             tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]-1] = 0;
+            fprintf(log,"%Jugador %i: %i,%ix%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]-sentidoMovimiento*2,ficha[1]-2);
+            fflush(log);
             if (ficha[0] == 7 || ficha[0] == 0)
             {
              tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]-2] = damaReina;   
@@ -425,10 +433,13 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = tableroDamas->array[ficha[0]][ficha[1]];
             tableroDamas->array[ficha[0]][ficha[1]] = 0;
             tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]+1] = 0;
-            
+            fprintf(log,"%Jugador %i: %i,%ix%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]-sentidoMovimiento*2,ficha[1]+2);
+            fflush(log);
              if (ficha[0]-sentidoMovimiento*2 == 7 || ficha[0]-sentidoMovimiento*2 == 0)
             {
-             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = damaReina;   
+             tableroDamas->array[ficha[0]-sentidoMovimiento*2][ficha[1]+2] = damaReina;
+             fprintf(log, "Jugador %i obtiene reina\n",numJugador);   
+             fflush(log);
             }
         }
         *piezasAdversario -= 1;
@@ -460,7 +471,6 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             printf("Jugador %i, escoja una ficha valida (Negras) para mover (Formato <<fila,columna>>)\n", numJugador);
             }
             fgets(str, 4, stdin);
-            //printf(str);
             //Resto 49 para convertir número ASCI a numero normal (-48) y restar 1 (las casillas empiezan en 1,
             //pero los indices en 0) al mismo tiempo
             ficha[0] = str[0] - 49;
@@ -496,6 +506,8 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             }
                 tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]-1] = tableroDamas->array[ficha[0]][ficha[1]];
                 tableroDamas->array[ficha[0]][ficha[1]] = 0;
+                fprintf(log,"%Jugador %i: %i,%i->%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]-sentidoMovimiento,ficha[1]-1);
+                fflush(log);
                 break;
             case 2:
             if ( tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]+1] != 0)
@@ -506,7 +518,9 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
             }
                 tableroDamas->array[ficha[0]-sentidoMovimiento][ficha[1]+1] = tableroDamas->array[ficha[0]][ficha[1]];
                 tableroDamas->array[ficha[0]][ficha[1]] = 0;
-            break;
+                fprintf(log,"%Jugador %i: %i,%i->%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]-sentidoMovimiento,ficha[1]+1);
+                fflush(log);
+                break;
             case 3:
                 if (isdamaReina)
                 {
@@ -518,7 +532,9 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
                     }else{
                     tableroDamas->array[ficha[0]+sentidoMovimiento][ficha[1]-1] = tableroDamas->array[ficha[0]][ficha[1]];
                     tableroDamas->array[ficha[0]][ficha[1]] = 0;
-                    }
+                    fprintf(log,"%Jugador %i: %i,%i->%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]+sentidoMovimiento,ficha[1]-1);
+                    fflush(log);
+                }
                 }else{
                     goto labelMovimiento;
                 }
@@ -534,7 +550,9 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
                     }else{
                     tableroDamas->array[ficha[0]+sentidoMovimiento][ficha[1]+1] = tableroDamas->array[ficha[0]][ficha[1]];
                     tableroDamas->array[ficha[0]][ficha[1]] = 0;
-                    }
+                    fprintf(log,"%Jugador %i: %i,%i->%i,%i\n",numJugador,ficha[0],ficha[1],ficha[0]+sentidoMovimiento,ficha[1]+1);
+                    fflush(log);    
+                }
                 }else{
                     goto labelMovimiento;
                 }
@@ -555,6 +573,8 @@ void turnoJugador(Tablero8x8* tableroDamas, char str[4], int movimiento, int num
                 {
                     tableroDamas->array[i][j] = damaReina;
                     printf("¡El jugador %i dispone de una nueva reina!\n", numJugador);
+                    fprintf(log, "Jugador %i obtiene reina\n",numJugador);
+                    fflush(log);
                 }
                 }
                 
@@ -639,28 +659,7 @@ int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int fi
         {
             return 5;
         }
-        return 0;
-        
-    /*}else{
-        int sentidoMovimiento = -1;
-        if (tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 1 || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 2)
-        {
-            return 1;
-        }else if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 1 || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 2)
-        {
-            return 2;
-        }
-        if (isReina == 1)
-        {
-            if (tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 1 || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 2)
-            {
-                return 1;
-            }else if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 1 || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 2){
-                return 2;
-            }
-        }
-        return 0;*/
-        
+        return 0;     
 }
 int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha){
     int sentidoMovimiento;
@@ -728,10 +727,158 @@ FILE* crearCSVPartida(char* fichero){
 }
 void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero){
     
-    fprintf(fichero,"CODPARTIDA,RESULTADO,JUEGO,AÑO,MES,DÍA,CODTORNEO\n");
-    //Cod partida es 1111 porque de momento si no no funciona
-    fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%i%i%i%i",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    fprintf(fichero,"codigoPartida,resultado,juego,anyo,mes,dia,codigoTorneo\n");
+    if (fecha.tm_mday <10 && fecha.tm_mon <10)
+    {
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else if(fecha.tm_mday <10){
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else if(fecha.tm_mon <10){
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else{
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }
     fclose(fichero);
-    csvToDatabasePartida();
+    //csvToDatabasePartida();
     fichero = NULL;
+}
+void verPartidasDisponibles(int tipoJuego){
+    createDB();
+    csvToDatabasePartida();
+    csvToDatabaseUsuario();
+    listaPartida = getListaPartida();
+    int longitud = lineasFichero("partidas.csv");
+    int j = 1;
+
+    for(int i = 0; i < longitud; i++){
+        if(tipoJuego == 1){
+            listaPartida[i].juego[strcspn(listaPartida[i].juego, "\n")] = '\0';
+            if(strcmp(listaPartida[i].juego, "Damas") == 0){
+                printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", j, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+                j++;
+            }
+        }
+
+        else if(tipoJuego == 2){
+            listaPartida[i].juego[strcspn(listaPartida[i].juego, "\n")] = '\0';
+            if(strcmp(listaPartida[i].juego, "CuatroRaya")== 0){
+                printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", j, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+                j++;
+        }
+        }   
+        
+    }
+
+    char str[5];
+    char opcion[5];
+   
+    do {
+        printf("\nQuiere salir al menu principal? S/N\n");
+        fflush(stdin);
+        fgets(str, 5, stdin);
+        sscanf(str, "%s", &opcion);
+    } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
+
+    if (opcion[0] == 's' || opcion[0] == 'S') {
+        paginaPrincipal();
+    } else {
+        verPartidasDisponibles(tipoJuego);
+        printf("\nPermanecera aqui\n");
+    }
+}
+void partidasDisponibles(int opcion) {
+    int numPartidas = lineasFichero("partidas.csv"); 
+    Partida* partidas = getListaPartida();
+    if (numPartidas == 0) {
+        printf("No hay torneos disponibles.\n");
+        return;
+    }
+
+    //printf("***********************TORNEOS DISPONIBLES******************************\n");
+    time_t ahora;
+    time(&ahora);
+    printf("***********************PARTIDAS DISPONIBLES******************************\n");
+    for (int i = 0; i < numPartidas-1; i++) {
+        if (mktime(&partidas[i].fecha) > ahora) {
+            printf("\t %d. %s (Codigo: %s)\n", i+1, partidas[i].juego, partidas[i].fecha);
+        }
+    }
+    fflush(stdin);
+    char str[5];
+    //system("cls");
+    printf("\nClick enter to exit: \n");
+    fgets(str, sizeof(str), stdin);
+    fflush(stdin);
+
+    paginaPrincipal();
+
+}
+Partida unirsePartida(int tipoJuego){
+    //createDB();
+    //csvToDatabasePartida();
+    //csvToDatabaseUsuario();
+    listaPartida = getListaPartida();
+    printf("Elija una partida de esta lista introduciendo su codigo: \n\n");
+    listaUsuario = getListaUsuario();
+    Partida partida;
+    int longitud = lineasFichero("partidas.csv");
+    char str[10];
+    char cod[10];
+
+    printf("Elija una partida de esta lista introduciendo su codigo: \n\n");
+    int i;
+    for(i = 1; i < longitud-1; i++){
+        if (tipoJuego == 1 && strcmp(listaPartida[i].juego,"Damas")==0){
+            printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", i+1, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+        }else if(tipoJuego == 2 && strcmp(listaPartida[i].juego,"4enRaya")==0){
+            printf("%d: Codigo: %s, Juego: %s, Fecha: %d-%d-%d\n", i+1, listaPartida[i].codigo, listaPartida[i].juego, listaPartida[i].fecha.tm_year + 1900, listaPartida[i].fecha.tm_mon + 1, listaPartida[i].fecha.tm_mday);
+        }
+    }
+    printf("Escribe el codigo: ");
+    fflush(stdin);
+    fgets(cod, 5, stdin);
+    fflush(stdin);
+
+    cod[strcspn(cod, "\n")] = '\0';
+
+    int aleatorio = seleccionarJugadorAleatorio();
+    for(int i = 0; i < longitud; i++){
+        if(strcmp(cod, listaPartida[i].codigo) == 0){
+            printf("Contrasenya correcta: \n");
+            printf("Uniendo a una partida... \n");
+            printf("Jugaras contra <%s> \n", listaUsuario[aleatorio].nombreUsuario);
+
+            //aqui empieza la partida a la que se une
+            if (tipoJuego == 1) {
+                partida = getPartida(cod);
+                partidaDamas(&partida); //partida de damas
+                return partida;
+            } else if (tipoJuego == 2) {
+                partida = getPartida(cod);
+                menuCuatroRaya(&partida); //partida de cuatro en raya
+                return partida;
+            }
+            free(listaUsuario);
+            return partida;
+        }
+    }
+    
+    char opcion[5];
+    do {
+        printf("El codigo introducido no coincide con ninguna partida.\nQuiere volver a intentarlo? S/N\n");
+        fflush(stdin);
+        fgets(str, 5, stdin);
+        sscanf(str, "%s", &opcion);
+    } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
+
+    if (opcion[0] == 's' || opcion[0] == 'S') {
+        unirsePartida(tipoJuego);
+    } else {
+        printf("Saliendo del sistema.\n");
+        paginaPrincipal();
+    }
+    
+
+    return partida;
+    
 }

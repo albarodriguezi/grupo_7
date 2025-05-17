@@ -81,19 +81,34 @@ void menuInicioSesion(){
     printf("********************************************************************* \n");
     printf("************************INICIO DE SESION***************************** \n");
     printf("********************************************************************* \n");
+    int control = 0;
+    while(control == 0){
+        printf("Introduce el email del usuario: ");
+	    fflush(stdout);
+        fflush(stdin);
+        char email[50];
+        char contrasenya[50];
+        fgets(bufer, sizeof(bufer), stdin);
+        bufer[strcspn(bufer, "\n")] = 0;
+        sscanf(bufer, "%s", email);
 
-    printf("Introduce el email del usuario: ");
-	fflush(stdout);
-    fflush(stdin);
-
-    fgets(bufer, sizeof(bufer), stdin);
-    sscanf(bufer, "%s", u.nombreUsuario);
-
-    printf("Introduce la contrasenya de usuario: ");
-	fflush(stdout);
-	fflush(stdin);
-    fgets(bufer, sizeof(bufer), stdin);
-    sscanf(bufer, "%s", u.contrasenya);
+        printf("Introduce la contrasenya de usuario: ");
+	    fflush(stdout);
+	    fflush(stdin);
+        fgets(bufer, sizeof(bufer), stdin);
+        bufer[strcspn(bufer, "\n")] = 0;
+        sscanf(bufer, "%s", contrasenya);
+        Usuario un = getUsuario(email);
+        if (strcmp(un.contrasenya,contrasenya)==0){
+            control = 1;
+            u = un;
+        }else{
+            printf("Contrasenya incorrecta.\n");
+            printf("%i\n",contrasenya);
+            printf("%i\n",un.contrasenya);
+        }
+    }
+  
 
     printf("\n");
     printf("Inicio de sesion. \n");

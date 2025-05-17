@@ -1,11 +1,9 @@
 
-
-
 #ifndef TORNEO_H_
 #define TORNEO_H_
-
+#include <time.h>
 typedef struct{
-    int codt;
+    char codt[5];
     char ganador[50];
     char fechai[50];
     char fechaf[50];
@@ -17,7 +15,7 @@ typedef struct{
 //void metodoEjemploTorneo();
 //void cargarTorneosCSV();
 void cargarTorneosEjemplo();
-void unirseTorneo();
-void torneosDisponibles();
+void unirseTorneo(int modoJuegoSeleccionado);
+void torneosDisponibles(int opcion);
 
 #endif
