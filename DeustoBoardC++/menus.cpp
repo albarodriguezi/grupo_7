@@ -76,8 +76,7 @@ void menuRegistrarse(SOCKET* s, Log& logger) {
 		logger.anadirLog("Inicio de sesion correcto");
 
 		Sleep(3000);
-        //hay que crear el menu de la pagina principal
-		//paginaPrincipal(s, u, logger);
+        //te lleva al menu de inicio de sesion
         menuInicioSesion(s, logger);
 	}
 
@@ -101,7 +100,7 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 
 	char email[50];
 	char contrasenya[50];
-	cout<<"Inserte dni: ";
+	cout<<"Inserte email: ";
 	cin>>email;
 	cout<<"Inserte contrasena: ";
 	cin>>contrasenya;
@@ -119,31 +118,29 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 		logger.anadirLog("Inicio de sesion correcto");
 
 		Sleep(3000);
-        //crear menu de partida principal
-		//paginaPrincipal(s, u, logger);
+		//te lleva al menu para elegir el juego qeu quieres jugar
+		menuModoJuego(s, logger);
 	}
 
 
 	cout << "Error al iniciar sesion." << endl;
-
-
 	logger.anadirLog("Error al iniciar sesion");
 
 	Sleep(3000);
-	menuPrincipal(s, logger);
+	//hay que cambiarlo --> deveria llevarte a la pagina de inicio otra vez
+	menuModoJuego(s, logger);
 
 
 }
 
 //menu pagina principal de juego( crear partida, unirse partida, unirse torneo...)
 void menuPaginaPrincipal(SOCKET* s, Log& logger) {
-
-	cout <<"*********************************************************************" << endl <<
-	"************************ELIGA FORMA DE JUEGO*****************************"<< endl <<
-	"*********************************************************************" <<endl<<endl;
 	system("cls");
 	int opcion;
 	dibujoPaginaPrincipal();
+		cout <<"*********************************************************************" << endl <<
+	"************************ELIGA FORMA DE JUEGO*****************************"<< endl <<
+	"*********************************************************************" <<endl<<endl;
 	cout<<"1. Crear partida "<<endl<<
 		  "2.  Unirse partida"<<endl<<
 		  "3.  Unirse Torneo"<<endl<<
@@ -193,20 +190,18 @@ int modoJuegoSeleccionado = 1;
 
 //menu para elegir el juego al que se quiere jugar(damas o cuatro en raya)
 void menuModoJuego(SOCKET* s, Log& logger) {
-
-	cout << "*********************************************************************" << endl <<
-			"************************ELIGA JUEGO**********************************"<< endl <<
-			"*********************************************************************" <<endl<<endl;
 	system("cls");
 	int opcion;
-	dibujoPaginaPrincipal();
+		cout << "*********************************************************************" << endl <<
+			"************************ELIGA JUEGO**********************************"<< endl <<
+			"*********************************************************************" <<endl<<endl;
 	cout<<"1. Damas"<<endl<<
 		  "2. Cuatro en raya"<<endl<<
 		  "3. Exit" <<endl<<endl<<
 		  "Introduce una opcion: "; 
     cin>>opcion;
     cout<<endl;
-    casePaginaPrincipal(&opcion, s, logger);
+    caseModoJuego(&opcion, s, logger);
 
 }
 
