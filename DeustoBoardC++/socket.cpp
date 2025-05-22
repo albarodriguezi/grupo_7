@@ -28,12 +28,16 @@ int setUpSocket(SOCKET* s){
 	}
 	cout << "Socket creado correctamente" << endl;
 
-	Fichero f;
-	f.leerConfig();
-
+	//Fichero f;
+	//f.leerConfig();
+	/*
 	server.sin_addr.s_addr = inet_addr(f.getIp());
 	server.sin_family = AF_INET;
 	server.sin_port = htons(f.getPuerto());
+	*/
+	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server.sin_family = AF_INET;
+    server.sin_port = htons(6000);
 
 	//CONNECT to remote server
 	if (connect(*s, (struct sockaddr*) &server, sizeof(server)) == SOCKET_ERROR)
@@ -46,4 +50,39 @@ int setUpSocket(SOCKET* s){
 
 	cout << "Conexion establecida con: " << inet_ntoa(server.sin_addr) << " (" << ntohs(server.sin_port) << ")" << endl;
 	return 0;
+}
+
+void enviarMensaje(char* recvBuff, char* sendBuff, const char* mensaje, SOCKET comm_socket) {
+    std::cout << "Sending reply... \n";
+    strcpy(sendBuff, "ACK -> ");
+    std::cout << "About to copy receive buff...\n";
+    strcat(sendBuff, recvBuff);
+    std::cout << "About to copy the message...\n";
+    strcat(sendBuff, "\n");
+    strcat(sendBuff, mensaje);
+    std::cout << "Almost sent...\n";
+    send(comm_socket, sendBuff, 1024, 0);
+    std::cout << "Sent!\n";
+}
+
+char* recibirMensaje(char* recvBuff, SOCKET comm_socket) {
+    while (true) {
+        int bytes = recv(comm_socket, recvBuff, 512, 0);
+        if (bytes > 0) {
+            std::cout << "Recibiendo mensaje... \n";
+            std::cout << "Datos recibidos: " << recvBuff << " \n";
+            break;
+        }
+    }
+    return recvBuff;
+}
+
+int contarSlash(const char* code) {
+    int count = 0;
+    for (int i = 0; code[i] != '\0'; i++) {
+        if (code[i] == '/') {
+            count++;
+        }
+    }
+    return count;
 }

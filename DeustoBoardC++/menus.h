@@ -1,10 +1,11 @@
 #ifndef MENUS_H_
 #define MENUS_H_
 
-#include "usuario.h"
+//#include "usuario.h"
 #include "dibujos.h"
 #include "log.h"
 #include <winsock2.h>
+#include "usuario.h"
 
 using namespace std; 
 
@@ -27,11 +28,14 @@ void menuModoJuego(SOCKET* s, Log& logger);
 void caseModoJuego(int *opcion, SOCKET* s, Log& logger);
 
 
+//menu para ver las partidad disponibles
+void menuPartidasDisponibles(SOCKET* s, Log& logger);
+
 //SOCKETS
 
 void enviarComandoRegistro(SOCKET* s, Usuario& u);
 
-int enviarComandoIniciarSesion(SOCKET* s, char* email, char* contrasena, Usuario& u);
+int enviarComandoIniciarSesion(SOCKET* s, char* email, char* contrasena);
 
 void enviarComandoSalir(SOCKET *s);
 
