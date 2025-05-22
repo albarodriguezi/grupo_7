@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include "socket.h"
 using namespace std;
 
 Usuario :: Usuario(char* email, char* nombre, char* contra){
@@ -44,10 +45,13 @@ void Usuario :: setContrasenya(char* contrasenya){
     strcpy(this->contrasenya, contrasenya);
 }
 
-void Usuario::pedirUsuario() {
+void Usuario::pedirUsuario(SOCKET* s) {
     char email[50];
     char nombreUsuario[50];
     char contrasenya[50];
+    char sendBuff[512];
+    char recvBuff[1024];
+
 
 	cout << "Introduce el dni: ";
     cin >> email;
@@ -61,5 +65,11 @@ void Usuario::pedirUsuario() {
     cin >> contrasenya;
     cout << endl;
 	setContrasenya(contrasenya);
+
+    //char* mensaje=new char[strlen(email)+strlen(nombreUsuario)+strlen(contrasenya)+8];
+    
+
+    
+
 }
 

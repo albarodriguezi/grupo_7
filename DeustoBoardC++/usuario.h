@@ -1,3 +1,5 @@
+#include <winsock2.h>
+#include "socket.h"
 #ifndef USUARIO_H_
 #define USUARIO_H_
 
@@ -22,7 +24,7 @@ class Usuario{
         void setNombre(char* nombreUsuario);
         void setContrasenya(char* contrasenya);
 
-        void pedirUsuario();
+        void pedirUsuario(SOCKET* s);
 };
 
 #endif

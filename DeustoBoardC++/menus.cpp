@@ -1,10 +1,12 @@
 #include "menus.h"
 #include "log.h"
+#include "socket.h"
 #include <iostream>
 #include <iomanip>
 #include <ctime>
 #include <winsock2.h>
 #include <windows.h>
+//#include "usuario.h"
 
 //menu principal(registro, inicio de sesion, salir de la pagina)
 void menuPrincipal(SOCKET* s, Log& logger) {
@@ -105,8 +107,7 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 	cout<<"Inserte contrasena: ";
 	cin>>contrasenya;
 
-	Usuario u;
-	int existe = enviarComandoIniciarSesion(s, email, contrasenya, u);
+	int existe = enviarComandoIniciarSesion(s, email, contrasenya);
 
 
 
@@ -128,7 +129,7 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 
 	Sleep(3000);
 	//hay que cambiarlo --> deveria llevarte a la pagina de inicio otra vez
-	menuModoJuego(s, logger);
+	menuInicioSesion(s, logger);
 
 
 }
@@ -169,7 +170,9 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				//hay que añadir estos metodos
 				break;
 			case 4:
-				//hay que añadir estos metodos
+				
+				menuPartidasDisponibles(s,logger);
+				menuPaginaPrincipal(s,logger);
 				break;
 			case 5:
 				//hay que añadir estos metodos
@@ -228,38 +231,220 @@ void caseModoJuego(int *opcion, SOCKET* s, Log& logger) {
 				break;
 		}
 }
+/*
+void menuPartidasDisponibles(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl <<
+			"************************PARTIDAS DISPONIBLES*************************"<< endl <<
+			"*********************************************************************" <<endl<<endl;
+	if (modoJuegoSeleccionado==1){
+		char sendBuff[512];
+		char recvBuff[1024];
+		recvBuff[0]='\0';
+		strcpy(sendBuff, "GPA::Damas");
+    	send(*s, sendBuff, sizeof(sendBuff), 0);
+		//sleep(100);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		int tamano = contarDobleSlash(recvBuff);
+		cout << recvBuff;
+		char* token = strtok(recvBuff, "//");
+		while (token != nullptr) {
+		int i=0;
+		char* tokendos = strtok(token, ";");
+		int j=0;
+		char codigo[5];
+		char juego[6];
+		char fecha[11];
+        while (tokendos != nullptr) {
+			if (j==0){
+				strcpy(codigo,tokendos);
+			}else if(j==1){
+				strcpy(juego,tokendos);
+			}else if(j==2){
+				strcpy(fecha,tokendos);
+			}
+			j++;
+        }
+		cout << i+1 << ". " << juego <<" (" << fecha << ")"<< endl;
+        token = strtok(nullptr, "//");  // avanzar al próximo token
+		i++;
+    }
+	cout << "Type something to get back";
+	char* enter;
+	cin >> enter;
+	}else if(modoJuegoSeleccionado==2){
 
+	}else{
+		cout << modoJuegoSeleccionado;
+	}
+}
+
+void menuPartidasDisponibles(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl
+		 << "************************PARTIDAS DISPONIBLES*************************" << endl
+		 << "*********************************************************************" << endl
+		 << endl;
+	cout << "Give us a moment..." << endl;
+
+	if (modoJuegoSeleccionado == 1) {
+		char sendBuff[512];
+		char recvBuff[1024];
+		char juego[6];
+		char fecha[11];
+		char codigo[5];
+		recvBuff[0] = '\0';
+
+
+		strcpy(sendBuff, "GPA::Damas");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		int tamano = contarSlash(recvBuff);
+		//cout << tamano << endl;
+		int j=0;
+		while (j<tamano){
+		char* listaPartidas[tamano];
+		char *token = strtok(recvBuff, "/");
+		int j = 0;
+		while (j < tamano) {
+			listaPartidas[j] = token;
+			token = strtok(NULL, "/");
+		}
+		j=0;
+		
+		while (j< tamano){
+				char *tokendos = strtok(token, ";");
+				int i=0;
+				while (i<3){
+        			if (i == 0) {
+            			strcpy(codigo, tokendos);
+        			} else if (i == 1) {
+            			strcpy(juego, tokendos);
+        			} else if (i == 2) {
+						strcpy(fecha, tokendos);
+						cout << j << ". " << codigo << endl;
+        			}
+        			i++;
+        			tokendos = strtok(NULL, ";");
+				}
+    		}
+			j++;
+	}
+		cout << "\nPulsa ENTER para volver...";
+		cin.ignore();
+		cin.get();
+	
+	}else if (modoJuegoSeleccionado == 2) {
+		// Otro modo
+	}
+	else {
+		cout << modoJuegoSeleccionado;
+	}
+}
+*/
+
+void menuPartidasDisponibles(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl
+		 << "************************PARTIDAS DISPONIBLES*************************" << endl
+		 << "*********************************************************************" << endl
+		 << endl;
+	cout << "Give us a moment..." << endl;
+
+	if (modoJuegoSeleccionado == 1) {
+		char sendBuff[512];
+		char recvBuff[1024];
+		recvBuff[0] = '\0';
+
+		strcpy(sendBuff, "GPA::Damas");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		// Crear una copia para no modificar recvBuff original
+		char tempBuff[1024];
+		strcpy(tempBuff, recvBuff);
+
+		// Lista auxiliar
+		const int MAX_PARTIDAS = 50;
+		char* listaPartidas[MAX_PARTIDAS];
+		int numPartidas = 0;
+
+		// Tokenizar por "/"
+		char* token = strtok(tempBuff, "/");
+		while (token != nullptr && numPartidas < MAX_PARTIDAS) {
+			listaPartidas[numPartidas++] = token;
+			token = strtok(nullptr, "/");
+		}
+
+		// Recorrer lista auxiliar
+		for (int j = 0; j < numPartidas; ++j) {
+			char temp[256];
+			strncpy(temp, listaPartidas[j], sizeof(temp));
+			temp[sizeof(temp) - 1] = '\0';
+
+			char* campo = strtok(temp, ";");
+			char codigo[10] = {0};
+			char juego[20] = {0};
+			char fecha[20] = {0};
+
+			int i = 0;
+			while (campo != nullptr) {
+				if (i == 0) strncpy(codigo, campo, sizeof(codigo));
+				else if (i == 1) strncpy(juego, campo, sizeof(juego));
+				else if (i == 2) strncpy(fecha, campo, sizeof(fecha));
+				i++;
+				campo = strtok(nullptr, ";");
+			}
+
+			if (i == 3) {
+				cout << j + 1 << ". " << juego << ": " << codigo << " (" << fecha << ")" << endl;
+			}
+		}
+
+		cout << "\nPulsa ENTER para volver...";
+		cin.ignore();
+		cin.get();
+
+	} else if (modoJuegoSeleccionado == 2) {
+		// Otro modo
+	} else {
+		cout << modoJuegoSeleccionado;
+	}
+}
 //--------------------------------------------SOCKET---------------------------------------------------------------
 
 
 //comando salir
 void enviarComandoSalir(SOCKET *s) {
 	char sendBuff[512];
-	strcpy(sendBuff, "SALIR");
+	strcpy(sendBuff, "Bye");
 	send(*s, sendBuff, sizeof(sendBuff), 0);
 }
 
 //comando iniciar sesion
-int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena, Usuario& u){
+int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 	char sendBuff[512], recvBuff[512];
 
 	strcpy(sendBuff, "COMP_INICIO_SESION");
+
+	strcpy(sendBuff,"GUS::");
+	strcat(sendBuff,email);
 	send(*s, sendBuff, sizeof(sendBuff), 0);
-	strcpy(sendBuff, email);
-    send(*s, sendBuff, sizeof(sendBuff), 0);
-	strcpy(sendBuff, contrasena);
-	send(*s, sendBuff, sizeof(sendBuff), 0);
 
 
 	recv(*s, recvBuff, sizeof(recvBuff), 0);
-	u.setEmail(recvBuff);
-	recv(*s, recvBuff, sizeof(recvBuff), 0);
-	u.setContrasenya(recvBuff);
+	int i;
+	//cout << recvBuff;
+	if(!strcmp(recvBuff,contrasena)){
+		i=1;
+	}else{
+		i=0;
+	}
 
-	recv(*s, recvBuff, sizeof(recvBuff), 0);
-
-
-	return atoi(recvBuff);
+	return i;
 
 }
 
@@ -269,9 +454,14 @@ void enviarComandoRegistro(SOCKET* s, Usuario& u) {
 
 	strcpy(sendBuff, "COMP_REGISTRO");
 	send(*s, sendBuff, sizeof(sendBuff), 0);
-	strcpy(sendBuff, u.getEmail());
-	send(*s, sendBuff, sizeof(sendBuff), 0);
-	strcpy(sendBuff, u.getNombre());
-	send(*s, sendBuff, sizeof(sendBuff), 0);
-	strcpy(sendBuff, u.getContrasenya());
+	sendBuff[0]='\0';
+    strcpy(sendBuff,"REG::");
+    strcat(sendBuff,u.getNombre());
+    strcat(sendBuff,";");
+    strcat(sendBuff,u.getEmail());
+    strcat(sendBuff,";");
+    strcat(sendBuff,u.getContrasenya());
+    strcat(sendBuff,"\0");
+    cout << sendBuff;
+    send(*s, sendBuff, 1024, 0);
 }
