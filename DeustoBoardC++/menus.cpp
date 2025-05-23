@@ -6,6 +6,7 @@
 #include <ctime>
 #include <winsock2.h>
 #include <windows.h>
+
 //#include "usuario.h"
 
 //menu principal(registro, inicio de sesion, salir de la pagina)
@@ -164,7 +165,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				//ELEMPLO --> menuRegistrarse(s, logger);
 				break;
 			case 2:
-				//hay que añadir estos metodos
+				menuUnirsePartida(s,logger);
+				menuPaginaPrincipal(s,logger);
 				break;
 			case 3:
 				//hay que añadir estos metodos
@@ -366,13 +368,13 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 		// Crear una copia para no modificar recvBuff original
 		char tempBuff[1024];
 		strcpy(tempBuff, recvBuff);
-
+		
 		// Lista auxiliar
 		const int MAX_PARTIDAS = 50;
 		char* listaPartidas[MAX_PARTIDAS];
 		int numPartidas = 0;
 
-		// Tokenizar por "/"
+		// Menter partidas a la lista auxiliar
 		char* token = strtok(tempBuff, "/");
 		while (token != nullptr && numPartidas < MAX_PARTIDAS) {
 			listaPartidas[numPartidas++] = token;
@@ -409,13 +411,135 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 		cin.get();
 
 	} else if (modoJuegoSeleccionado == 2) {
-		// Otro modo
+		char sendBuff[512];
+		char recvBuff[1024];
+		recvBuff[0] = '\0';
+
+		strcpy(sendBuff, "GPA::4enRaya");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		// Crear una copia para no modificar recvBuff original
+		char tempBuff[1024];
+		strcpy(tempBuff, recvBuff);
+		
+		// Lista auxiliar
+		const int MAX_PARTIDAS = contarSlash(recvBuff);
+		char* listaPartidas[MAX_PARTIDAS];
+		int numPartidas = 0;
+
+		// Menter partidas a la lista auxiliar
+		char* token = strtok(tempBuff, "/");
+		while (token != nullptr && numPartidas < MAX_PARTIDAS) {
+			listaPartidas[numPartidas++] = token;
+			token = strtok(nullptr, "/");
+		}
+
+		// Recorrer lista auxiliar
+		for (int j = 0; j < numPartidas; ++j) {
+			char temp[256];
+			strncpy(temp, listaPartidas[j], sizeof(temp));
+			temp[sizeof(temp) - 1] = '\0';
+
+			char* campo = strtok(temp, ";");
+			char codigo[5];
+			char juego[6];
+			char fecha[11];
+
+			int i = 0;
+			while (campo != nullptr) {
+				if (i == 0) strcpy(codigo, campo);
+				else if (i == 1) strncpy(juego, campo, sizeof(juego));
+				else if (i == 2) strncpy(fecha, campo, sizeof(fecha));
+				i++;
+				campo = strtok(nullptr, ";");
+			}
+
+			if (i == 3) {
+				cout << j + 1 << ". " << juego << ": " << codigo << " (" << fecha << ")" << endl;
+			}
+		}
+
+		cout << "\nPulsa ENTER para volver...";
+		cin.ignore();
+		cin.get();
 	} else {
 		cout << modoJuegoSeleccionado;
 	}
 }
-//--------------------------------------------SOCKET---------------------------------------------------------------
+void menuUnirsePartida(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl
+		 << "************************UNIRSE A UNA PARTIDA*************************" << endl
+		 << "*********************************************************************" << endl
+		 << endl;
 
+	if (modoJuegoSeleccionado == 1) {
+		char sendBuff[512];
+		char recvBuff[1024] = {0};
+
+		strcpy(sendBuff, "GPA::Damas");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		int max = contarSlash(recvBuff);
+
+		char** codes = getCodigoPartidas(recvBuff,max);
+
+		cout << "Codigos disponibles:" << endl;
+		for (int i = 0; i < max; ++i) {
+			cout << codes[i] << endl;
+		}
+
+		char code[5];
+		cout << "\nInsertar codigo: ";
+		cin >> code;
+
+		bool encontrado = false;
+		for (int i = 0; i < max; ++i) {
+			if (strcmp(code, codes[i]) == 0) {
+				encontrado = true;
+				break;
+			}
+		}
+
+		if (encontrado) {
+			printf("Sending message 1... \n");
+		strcpy(sendBuff, "BEGINDAMAS");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		Sleep(3000);
+		printf("Receiving message 1... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		recvBuff[0]='\0';
+		printf("Data received: %s \n", recvBuff);
+
+		char input[256];
+		do
+		{
+		cin >> input;
+		printf("Sending message ... \n");
+		strcpy(sendBuff, input);
+		input[0]='\0';
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		printf("Data sent: %s \n", sendBuff);
+		
+		printf("Receiving message ... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		printf("Data received: %s \n", recvBuff);
+		} while (strcmp(input, "Bye"));
+			}else {
+		cout << "Code doesn't exist." << endl;
+			}
+
+		// Liberar memoria
+		for (int i = 0; i < max; ++i) {
+			delete[] codes[i];
+		}
+		delete[] codes;
+	}
+}
+//--------------------------------------------SOCKET---------------------------------------------------------------
 
 //comando salir
 void enviarComandoSalir(SOCKET *s) {
