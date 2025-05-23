@@ -52,8 +52,7 @@ void Usuario::pedirUsuario(SOCKET* s) {
     char sendBuff[512];
     char recvBuff[1024];
 
-
-	cout << "Introduce el dni: ";
+	cout << "Introduce el DNI: ";
     cin >> email;
     cout << endl;
 	setEmail(email);
@@ -68,8 +67,5 @@ void Usuario::pedirUsuario(SOCKET* s) {
 
     //char* mensaje=new char[strlen(email)+strlen(nombreUsuario)+strlen(contrasenya)+8];
     
-
-    
-
 }
 
