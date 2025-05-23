@@ -86,3 +86,43 @@ int contarSlash(const char* code) {
     }
     return count;
 }
+
+char** getCodigoPartidas(const char* data, int& numCodigos) {
+	// Crear una copia para no modificar recvBuff original
+	char tempBuff[2048];
+	strcpy(tempBuff, data);
+	
+	// Lista auxiliar
+	const int MAX_PARTIDAS = contarSlash(tempBuff);
+	char* listaPartidas[MAX_PARTIDAS];
+	int numPartidas = 0;
+
+	// Meter partidas a la lista auxiliar
+	char* token = strtok(tempBuff, "/");
+	while (token != nullptr && numPartidas < MAX_PARTIDAS) {
+		listaPartidas[numPartidas++] = token;
+		token = strtok(nullptr, "/");
+	}
+
+	// Reservar memoria para códigos
+	char** codes = new char*[numPartidas];
+	for (int i = 0; i < numPartidas; ++i) {
+		codes[i] = new char[5];  // código de 4 dígitos + '\0'
+	}
+
+	// Extraer código de cada partida
+	for (int j = 0; j < numPartidas; ++j) {
+		char temp[256];
+		strncpy(temp, listaPartidas[j], sizeof(temp));
+		temp[sizeof(temp) - 1] = '\0';
+
+		char* campo = strtok(temp, ";");
+		if (campo != nullptr) {
+			strncpy(codes[j], campo, 5);
+			codes[j][4] = '\0';  // Asegurar null-termination
+		}
+	}
+
+	numCodigos = numPartidas;
+	return codes;
+}
