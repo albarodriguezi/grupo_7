@@ -6,6 +6,7 @@
 #include "log.h"
 #include <winsock2.h>
 #include "usuario.h"
+#include "socket.h"
 
 using namespace std; 
 
@@ -30,6 +31,8 @@ void caseModoJuego(int *opcion, SOCKET* s, Log& logger);
 
 //menu para ver las partidad disponibles
 void menuPartidasDisponibles(SOCKET* s, Log& logger);
+
+void menuUnirsePartida(SOCKET* s, Log& logger);
 
 //SOCKETS
 
