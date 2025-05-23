@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     csvToDatabasePartida();
     csvToDatabaseParticipa();
     csvToDatabaseTorneo();
-csvToDatabaseRegistrado();
+    csvToDatabaseRegistrado();
 
     printf("\nInitialising Winsock...\n");
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -309,7 +309,8 @@ void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket)
     strcpy(mensaje, "\nIniciando partida a las Damas...\n Envíe cualquier input para empezar\n");
     Tablero8x8 tableroDamas = crearTableroDamas();
     imprimirTableroDamas(tableroDamas, mensaje);
-    enviarMensaje(recvBuff,sendBuff,mensaje, comm_socket);
+    //enviarMensaje(recvBuff,sendBuff,mensaje, comm_socket);
+
     char *temp = recibirMensaje(recvBuff, comm_socket);
     if(!strcmp(temp, "Bye")){
         return;
@@ -546,6 +547,7 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
             strcat(mensaje, buffer);
             enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
             strcpy(mensaje, "");
+            Sleep(500);
             str = recibirMensaje(recvBuff, comm_socket);
             if(!strcmp(str, "Bye")){
                 *isGameOver = 1;
