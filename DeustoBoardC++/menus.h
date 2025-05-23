@@ -34,6 +34,12 @@ void menuPartidasDisponibles(SOCKET* s, Log& logger);
 
 void menuUnirsePartida(SOCKET* s, Log& logger);
 
+
+//menu para ver las torneos disponibles
+void menuTorneosDisponibles(SOCKET* s, Log& logger);
+
+void menuUnirseTorneo(SOCKET* s, Log& logger);
+
 //SOCKETS
 
 void enviarComandoRegistro(SOCKET* s, Usuario& u);

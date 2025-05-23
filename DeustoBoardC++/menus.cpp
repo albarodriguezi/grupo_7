@@ -169,7 +169,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				menuPaginaPrincipal(s,logger);
 				break;
 			case 3:
-				//hay que añadir estos metodos
+				menuUnirseTorneo(s,logger);
+				menuPaginaPrincipal(s,logger);
 				break;
 			case 4:
 				
@@ -177,7 +178,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				menuPaginaPrincipal(s,logger);
 				break;
 			case 5:
-				//hay que añadir estos metodos
+				menuTorneosDisponibles(s, logger);
+				menuPaginaPrincipal(s,logger);
 				break;
 			case 6:
 				enviarComandoSalir(s);
@@ -480,6 +482,148 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		char recvBuff[1024] = {0};
 
 		strcpy(sendBuff, "GPA::Damas");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		int max = contarSlash(recvBuff);
+
+		char** codes = getCodigoPartidas(recvBuff,max);
+
+		cout << "Codigos disponibles:" << endl;
+		for (int i = 0; i < max; ++i) {
+			cout << codes[i] << endl;
+		}
+
+		char code[5];
+		cout << "\nInsertar codigo: ";
+		cin >> code;
+
+		bool encontrado = false;
+		for (int i = 0; i < max; ++i) {
+			if (strcmp(code, codes[i]) == 0) {
+				encontrado = true;
+				break;
+			}
+		}
+
+		if (encontrado) {
+			printf("Sending message 1... \n");
+		strcpy(sendBuff, "BEGINDAMAS");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		Sleep(3000);
+		printf("Receiving message 1... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		recvBuff[0]='\0';
+		printf("Data received: %s \n", recvBuff);
+
+		char input[256];
+		do
+		{
+		cin >> input;
+		printf("Sending message ... \n");
+		strcpy(sendBuff, input);
+		input[0]='\0';
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		printf("Data sent: %s \n", sendBuff);
+		
+		printf("Receiving message ... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		printf("Data received: %s \n", recvBuff);
+		} while (strcmp(input, "Bye"));
+			}else {
+		cout << "Code doesn't exist." << endl;
+			}
+
+		// Liberar memoria
+		for (int i = 0; i < max; ++i) {
+			delete[] codes[i];
+		}
+		delete[] codes;
+	}
+}
+void menuTorneosDisponibles(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl
+		 << "************************TORNEOS DISPONIBLES*************************" << endl
+		 << "*********************************************************************" << endl
+		 << endl;
+	cout << "Give us a moment..." << endl;
+
+	if (modoJuegoSeleccionado == 1) {
+		char sendBuff[512];
+		char recvBuff[1024];
+		recvBuff[0] = '\0';
+
+		strcpy(sendBuff, "GTO");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		// Crear una copia para no modificar recvBuff original
+		char tempBuff[1024];
+		strcpy(tempBuff, recvBuff);
+		//cout << tempBuff;
+		// Lista auxiliar
+		const int MAX_TORNEOS = 50;
+		char* listaPartidas[MAX_TORNEOS];
+		int numTorneos = 0;
+
+		// Menter partidas a la lista auxiliar
+		char* token = strtok(tempBuff, "/");
+		while (token != nullptr && numTorneos < MAX_TORNEOS) {
+			listaPartidas[numTorneos++] = token;
+			token = strtok(nullptr, "/");
+		}
+
+		// Recorrer lista auxiliar
+		for (int j = 0; j < numTorneos; ++j) {
+			char temp[256];
+			strncpy(temp, listaPartidas[j], sizeof(temp));
+			temp[sizeof(temp) - 1] = '\0';
+
+			char* campo = strtok(temp, ";");
+			char codigo[10] = {0};
+			char nombre[20] = {0};
+			char fecha1[20] = {0};
+			char fecha2[20] = {0};
+
+			int i = 0;
+			while (campo != nullptr) {
+				if (i == 0) strncpy(codigo, campo, sizeof(codigo));
+				else if (i == 1) strncpy(fecha1, campo, sizeof(fecha1));
+				else if (i == 2) strncpy(fecha2, campo, sizeof(fecha2));
+				else if (i == 3) strncpy(nombre, campo, sizeof(nombre));
+				i++;
+				campo = strtok(nullptr, ";");
+			}
+
+			if (i == 4) {
+				cout << j + 1 << ". " << codigo << ": " << nombre << " (" << fecha1 << " - " << fecha2 << ")" << endl;
+			}
+		}
+
+		cout << "\nPulsa ENTER para volver...";
+		cin.ignore();
+		cin.get();
+
+	}else {
+		cout << modoJuegoSeleccionado;
+	}
+}
+
+void menuUnirseTorneo(SOCKET *s, Log &logger)
+{
+	system("cls");
+	cout << "*********************************************************************" << endl
+		 << "************************UNIRSE A UNA PARTIDA*************************" << endl
+		 << "*********************************************************************" << endl
+		 << endl;
+
+	if (modoJuegoSeleccionado == 1) {
+		char sendBuff[512];
+		char recvBuff[1024] = {0};
+
+		strcpy(sendBuff, "GTO");
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		recv(*s, recvBuff, sizeof(recvBuff), 0);
 
