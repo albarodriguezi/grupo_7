@@ -28,6 +28,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger);
 void menuModoJuego(SOCKET* s, Log& logger);
 void caseModoJuego(int *opcion, SOCKET* s, Log& logger);
 
+//menu para crear partida
+void crearPartida(int *opcion, SOCKET* s, Log& logger);
 
 //menu para ver las partidad disponibles
 void menuPartidasDisponibles(SOCKET* s, Log& logger);

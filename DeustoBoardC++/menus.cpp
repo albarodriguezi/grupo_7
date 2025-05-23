@@ -194,6 +194,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 	switch (*opcion) {
 			case 1:
                 //hay que añadir estos metodos
+				crearPartida(opcion, s, logger);
+				menuPaginaPrincipal(s,logger);
 				//ELEMPLO --> menuRegistrarse(s, logger);
 				break;
 			case 2:
@@ -380,7 +382,141 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 	}
 }
 */
+//----------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+void crearPartida(int *opcion, SOCKET* s, Log& logger) {
+    system("cls");
+    cout << "*********************************************************************" << endl
+         << "*************************** CREAR PARTIDA ***************************" << endl
+         << "*********************************************************************" << endl
+         << endl;
 
+    cout << "1. Jugar con un jugador aleatorio" << endl;
+    cout << "2. Jugar con un amigo" << endl;
+    cout << "3. Salir" << endl;
+
+    int opcionRival;
+
+    do {
+        cout << "\nIntroduce una opcion: ";
+        cin >> opcionRival;
+        cin.ignore();
+
+        switch (opcionRival) {
+            case 1: {
+                // OBTENER LISTA DE USUARIOS DESDE SERVIDOR 
+                char sendBuff[512];
+                char recvBuff[2048] = {0};
+
+                strcpy(sendBuff, "GUU");
+                send(*s, sendBuff, sizeof(sendBuff), 0);
+                recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+                int numUsuarios = contarSlash(recvBuff);
+                if (numUsuarios == 0) {
+                    cout << "No hay usuarios disponibles." << endl;
+                    break;
+                }
+
+                // Parseamos usuarios (cada usuario separado por '/')
+                char tempBuff[2048];
+                strcpy(tempBuff, recvBuff);
+                char* tokens[100];
+                int n = 0;
+
+                char* token = strtok(tempBuff, "/");
+                while (token != nullptr && n < 100) {
+                    tokens[n++] = token;
+                    token = strtok(nullptr, "/");
+                }
+
+                // Elegimos usuario aleatorio
+                srand((unsigned int)time(NULL));
+                int aleatorio = rand() % n;
+
+                // Sacamos nombre (primer campo antes de ; )
+                char copia[256];
+                strncpy(copia, tokens[aleatorio], sizeof(copia));
+                copia[sizeof(copia) - 1] = '\0';
+
+                char* campo = strtok(copia, ";");
+                char nombre[50] = {0};
+                if (campo != nullptr) {
+                    strncpy(nombre, campo, sizeof(nombre));
+                }
+
+                cout << "Jugarás contra el jugador " << "<" << nombre << "> " << endl;
+
+                // Aquí podrías llamar a la función que inicia la partida, por ejemplo:
+                // partidaDamas(s, logger);
+                break;
+            }
+
+            case 2: {
+                // BUSCAR AMIGO POR NOMBRE
+                char sendBuff[512];
+                char recvBuff[2048] = {0};
+                strcpy(sendBuff, "GUU");
+                send(*s, sendBuff, sizeof(sendBuff), 0);
+                recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+                int numUsuarios = contarSlash(recvBuff);
+                if (numUsuarios == 0) {
+                    cout << "No hay usuarios disponibles." << endl;
+                    break;
+                }
+
+                // Parseamos usuarios
+                char tempBuff[2048];
+                strcpy(tempBuff, recvBuff);
+                char* tokens[100];
+                int n = 0;
+
+                char* token = strtok(tempBuff, "/");
+                while (token != nullptr && n < 100) {
+                    tokens[n++] = token;
+                    token = strtok(nullptr, "/");
+                }
+
+                char nombreBuscado[50];
+                cout << "Introduce el nombre del amigo: ";
+                cin >> nombreBuscado;
+
+                bool encontrado = false;
+                for (int i = 0; i < n; ++i) {
+                    char copia[256];
+                    strncpy(copia, tokens[i], sizeof(copia));
+                    copia[sizeof(copia) - 1] = '\0';
+
+                    char* campo = strtok(copia, ";");
+                    if (campo != nullptr && strcmp(campo, nombreBuscado) == 0) {
+                        encontrado = true;
+                        break;
+                    }
+                }
+
+                if (encontrado) {
+                    cout << "Jugador <" << nombreBuscado << "> encontrado. Iniciando partida..." << endl;
+                    // Aquí iría llamada a iniciar partida con ese jugador
+                } else {
+                    cout << "Jugador no encontrado." << endl;
+                }
+
+                break;
+            }
+
+            case 3:
+                // Volver al menú principal
+                menuPaginaPrincipal(s, logger);
+                return;  // Salir para no continuar el loop
+
+            default:
+                cout << "Opción no válida. Intenta de nuevo." << endl;
+        }
+    } while (true);
+}
+
+//----------------------------------------------------------------------------------------
 void menuPartidasDisponibles(SOCKET *s, Log &logger)
 {
 	system("cls");
