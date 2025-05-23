@@ -8,7 +8,6 @@
 #include <windows.h>
 
 //#include "usuario.h"
-
 //menu principal(registro, inicio de sesion, salir de la pagina)
 void menuPrincipal(SOCKET* s, Log& logger) {
 	system("cls");
@@ -398,37 +397,35 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
     int opcionRival;
 
     do {
-        cout << "\nIntroduce una opcion: ";
-        cin >> opcionRival;
-        cin.ignore();
-
-        switch (opcionRival) {
-            case 1: {
-                // OBTENER LISTA DE USUARIOS DESDE SERVIDOR 
-                char sendBuff[512];
-                char recvBuff[2048] = {0};
-
-                strcpy(sendBuff, "GUU");
-                send(*s, sendBuff, sizeof(sendBuff), 0);
-                recv(*s, recvBuff, sizeof(recvBuff), 0);
-
-                int numUsuarios = contarSlash(recvBuff);
+		char sendBuff[512];
+        char recvBuff[1024];
+		recvBuff[0]='\0';
+        strcpy(sendBuff, "GNU");
+        send(*s, sendBuff, sizeof(sendBuff), 0);
+        recv(*s, recvBuff, sizeof(recvBuff), 0);
+		int numUsuarios = contarSlash(recvBuff);
                 if (numUsuarios == 0) {
                     cout << "No hay usuarios disponibles." << endl;
                     break;
                 }
 
                 // Parseamos usuarios (cada usuario separado por '/')
-                char tempBuff[2048];
-                strcpy(tempBuff, recvBuff);
                 char* tokens[100];
-                int n = 0;
-
-                char* token = strtok(tempBuff, "/");
-                while (token != nullptr && n < 100) {
-                    tokens[n++] = token;
-                    token = strtok(nullptr, "/");
-                }
+				int n = 0;
+				char* token = strtok(recvBuff, "/");
+				while (token != nullptr && n < 100) {
+    				if (strlen(token) > 0) { // Evita strings vacíos
+        				tokens[n++] = token;
+    				}
+    				token = strtok(nullptr, "/");
+				}		
+        cout << "\nIntroduce una opcion: ";
+        cin >> opcionRival;
+        cin.ignore();
+		
+        switch (opcionRival) {
+            case 1: {
+				//cout << tokens[1] << endl;
 
                 // Elegimos usuario aleatorio
                 srand((unsigned int)time(NULL));
@@ -436,60 +433,48 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 
                 // Sacamos nombre (primer campo antes de ; )
                 char copia[256];
-                strncpy(copia, tokens[aleatorio], sizeof(copia));
-                copia[sizeof(copia) - 1] = '\0';
+				copia[0] = '\0';
+                strcpy(copia, tokens[aleatorio]);
+                
 
-                char* campo = strtok(copia, ";");
-                char nombre[50] = {0};
-                if (campo != nullptr) {
-                    strncpy(nombre, campo, sizeof(nombre));
-                }
 
-                cout << "Jugarás contra el jugador " << "<" << nombre << "> " << endl;
+                cout << "Jugaras contra el jugador " << "<" << copia << "> " << endl;
 
-                // Aquí podrías llamar a la función que inicia la partida, por ejemplo:
-                // partidaDamas(s, logger);
-                break;
-            }
+                
+                strcpy(sendBuff, "BEGINDAMAS");
+				send(*s, sendBuff, sizeof(sendBuff), 0);
+				//send(*s, "a", sizeof("a"), 0);
+				//Sleep(3000);
+				printf("Receiving message 1... \n");
+				recv(*s, recvBuff, sizeof(recvBuff), 0);
+				recvBuff[0]='\0';
+				printf("Data received: %s \n", recvBuff);
+
+				char input[256];
+				do
+				{
+				cin >> input;
+				printf("Sending message ... \n");
+				strcpy(sendBuff, input);
+				input[0]='\0';
+				send(*s, sendBuff, sizeof(sendBuff), 0);
+				printf("Data sent: %s \n", sendBuff);
+				printf("Receiving message ... \n");
+				recv(*s, recvBuff, sizeof(recvBuff), 0);
+				printf("Data received: %s \n", recvBuff);
+				} while (strcmp(input, "Bye"));
+        		        break;
+           		}
 
             case 2: {
-                // BUSCAR AMIGO POR NOMBRE
-                char sendBuff[512];
-                char recvBuff[2048] = {0};
-                strcpy(sendBuff, "GUU");
-                send(*s, sendBuff, sizeof(sendBuff), 0);
-                recv(*s, recvBuff, sizeof(recvBuff), 0);
-
-                int numUsuarios = contarSlash(recvBuff);
-                if (numUsuarios == 0) {
-                    cout << "No hay usuarios disponibles." << endl;
-                    break;
-                }
-
-                // Parseamos usuarios
-                char tempBuff[2048];
-                strcpy(tempBuff, recvBuff);
-                char* tokens[100];
-                int n = 0;
-
-                char* token = strtok(tempBuff, "/");
-                while (token != nullptr && n < 100) {
-                    tokens[n++] = token;
-                    token = strtok(nullptr, "/");
-                }
-
+				//cout << "aa";
                 char nombreBuscado[50];
                 cout << "Introduce el nombre del amigo: ";
                 cin >> nombreBuscado;
 
                 bool encontrado = false;
                 for (int i = 0; i < n; ++i) {
-                    char copia[256];
-                    strncpy(copia, tokens[i], sizeof(copia));
-                    copia[sizeof(copia) - 1] = '\0';
-
-                    char* campo = strtok(copia, ";");
-                    if (campo != nullptr && strcmp(campo, nombreBuscado) == 0) {
+                    if (tokens[i] != nullptr && strcmp(tokens[i], nombreBuscado) == 0) {
                         encontrado = true;
                         break;
                     }
@@ -497,7 +482,28 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 
                 if (encontrado) {
                     cout << "Jugador <" << nombreBuscado << "> encontrado. Iniciando partida..." << endl;
-                    // Aquí iría llamada a iniciar partida con ese jugador
+                    strcpy(sendBuff, "BEGINDAMAS");
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					//send(*s, "a", sizeof("a"), 0);
+					printf("Receiving message 1... \n");
+				recv(*s, recvBuff, sizeof(recvBuff), 0);
+				recvBuff[0]='\0';
+				printf("Data received: %s \n", recvBuff);
+
+				char input[256];
+				do
+				{
+				cin >> input;
+				printf("Sending message ... \n");
+				strcpy(sendBuff, input);
+				input[0]='\0';
+				send(*s, sendBuff, sizeof(sendBuff), 0);
+				printf("Data sent: %s \n", sendBuff);
+				printf("Receiving message ... \n");
+				recv(*s, recvBuff, sizeof(recvBuff), 0);
+				printf("Data received: %s \n", recvBuff);
+				} while (strcmp(input, "Bye"));
+        		        break;
                 } else {
                     cout << "Jugador no encontrado." << endl;
                 }
@@ -675,7 +681,7 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		}
 
 		if (encontrado) {
-			printf("Sending message 1... \n");
+		printf("Sending message 1... \n");
 		strcpy(sendBuff, "BEGINDAMAS");
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		Sleep(3000);

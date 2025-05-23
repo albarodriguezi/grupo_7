@@ -102,6 +102,7 @@ int main(int argc, char *argv[])
         printf("Sending reply... \n");
 		strcpy(sendBuff, "ACK -> ");
 		strcat(sendBuff, recvBuff);
+        printf("2\n");
         if (!strcmp(recvBuff, "BEGINDAMAS"))
         {
             partidaDamas(sendBuff, recvBuff, comm_socket);
@@ -210,6 +211,20 @@ int main(int argc, char *argv[])
 				}
                 strcat(sendBuff,"\0");
 
+			}else if(recvBuff[0]=='G'&&recvBuff[1]=='N'&&recvBuff[2]=='U'){  // Get partida for a game
+				int tamano = getTamanoListaUsuario();
+				int i=0;
+				Usuario* us=getListaUsuario();
+				sendBuff[0]='\0';
+				
+				while(i<tamano){
+					strcat(sendBuff,us[i].nombreUsuario);
+					strcat(sendBuff,"/");
+					i++;
+					printf("%i\n",i);
+				}
+				printf("%s\n",sendBuff);
+
 			}
         send(comm_socket, sendBuff, sizeof(sendBuff), 0);
         //enviarMensaje(recvBuff, sendBuff, "Funcionapls", comm_socket);
@@ -237,6 +252,7 @@ void enviarMensaje(char *recvBuff, char *sendBuff, char *mensaje, SOCKET comm_so
 {
     printf("Sending reply... \n");
     strcpy(sendBuff, "ACK -> ");
+    printf("%s\n",sendBuff);
     printf("About to copy recive buff...\n");
     strcat(sendBuff, recvBuff);
     printf("About to copy the message...\n");
@@ -309,7 +325,7 @@ void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket)
     strcpy(mensaje, "\nIniciando partida a las Damas...\n Envíe cualquier input para empezar\n");
     Tablero8x8 tableroDamas = crearTableroDamas();
     imprimirTableroDamas(tableroDamas, mensaje);
-    //enviarMensaje(recvBuff,sendBuff,mensaje, comm_socket);
+    enviarMensaje(recvBuff,sendBuff,mensaje, comm_socket);
 
     char *temp = recibirMensaje(recvBuff, comm_socket);
     if(!strcmp(temp, "Bye")){
