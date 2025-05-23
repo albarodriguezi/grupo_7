@@ -94,6 +94,7 @@ void menuRegistrarse(SOCKET* s, Log& logger) {
 }
 
 //menu inicio de sesion (pide email y constraseña)
+/*
 void menuInicioSesion(SOCKET* s, Log& logger) {
 	dibujoPerfil();
 
@@ -134,6 +135,37 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 
 
 }
+*/
+
+void menuInicioSesion(SOCKET* s, Log& logger) {
+	while (true) {
+		dibujoPerfil();
+
+		cout << "************************INICIO DE SESION*****************************" << endl;
+		char email[50];
+		char contrasenya[50];
+
+		cout << "Inserte email: ";
+		cin >> email;
+		cout << "Inserte contrasena: ";
+		cin >> contrasenya;
+
+		int existe = enviarComandoIniciarSesion(s, email, contrasenya);
+
+		if (existe == 1) {
+			cout << "Accediendo..." << endl;
+			logger.anadirLog("Inicio de sesion correcto");
+			Sleep(3000);
+			menuModoJuego(s, logger);
+			return;
+		} else {
+			cout << "Error al iniciar sesion.\n" << endl;
+			logger.anadirLog("Error al iniciar sesion");
+			Sleep(3000);
+		}
+	}
+}
+
 
 //menu pagina principal de juego( crear partida, unirse partida, unirse torneo...)
 void menuPaginaPrincipal(SOCKET* s, Log& logger) {
@@ -694,18 +726,16 @@ void enviarComandoSalir(SOCKET *s) {
 
 //comando iniciar sesion
 int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
-	char sendBuff[512], recvBuff[512];
+	char sendBuff[512], recvBuff[1024];
 
 	strcpy(sendBuff, "COMP_INICIO_SESION");
 
 	strcpy(sendBuff,"GUS::");
 	strcat(sendBuff,email);
 	send(*s, sendBuff, sizeof(sendBuff), 0);
-
-
 	recv(*s, recvBuff, sizeof(recvBuff), 0);
 	int i;
-	//cout << recvBuff;
+	cout << recvBuff << endl;
 	if(!strcmp(recvBuff,contrasena)){
 		i=1;
 	}else{
@@ -718,7 +748,7 @@ int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 
 //comando registro 
 void enviarComandoRegistro(SOCKET* s, Usuario& u) {
-	char sendBuff[512];
+	char sendBuff[1024];
 
 	strcpy(sendBuff, "COMP_REGISTRO");
 	send(*s, sendBuff, sizeof(sendBuff), 0);

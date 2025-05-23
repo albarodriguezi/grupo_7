@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 					strcat(sendBuff,ts[i].fechaf);
 					strcat(sendBuff,";");
 					strcat(sendBuff,ts[i].nombret);
-					strcat(sendBuff,"//");
+					strcat(sendBuff,"/");
 
 					
 					i++;
