@@ -11,4 +11,6 @@ void enviarMensaje(char *recvBuff, char *sendBuff, const char *mensaje, SOCKET c
 
 int contarSlash(const char* code);
 
+char** getCodigoPartidas(const char* data, int& numCodigos);
+
 #endif
