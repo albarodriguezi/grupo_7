@@ -748,10 +748,10 @@ int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 
 //comando registro 
 void enviarComandoRegistro(SOCKET* s, Usuario& u) {
-	char sendBuff[1024];
-
-	strcpy(sendBuff, "COMP_REGISTRO");
-	send(*s, sendBuff, sizeof(sendBuff), 0);
+	char sendBuff[512];
+	char recvBuff[1024];
+	//strcpy(sendBuff, "COMP_REGISTRO");
+	//send(*s, sendBuff, sizeof(sendBuff), 0);
 	sendBuff[0]='\0';
     strcpy(sendBuff,"REG::");
     strcat(sendBuff,u.getNombre());
@@ -761,5 +761,6 @@ void enviarComandoRegistro(SOCKET* s, Usuario& u) {
     strcat(sendBuff,u.getContrasenya());
     strcat(sendBuff,"\0");
     cout << sendBuff;
-    send(*s, sendBuff, 1024, 0);
+    send(*s, sendBuff, 512, 0);
+	recv(*s, recvBuff,1024,0);
 }
