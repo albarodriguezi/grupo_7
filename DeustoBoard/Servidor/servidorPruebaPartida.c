@@ -116,14 +116,28 @@ int main(int argc, char *argv[])
         {
             int tamano = getTamanoListaPartida("Damas");
             Partida * partidas = getListaPartidaJuego("Damas");
+            bool encontrada = false;
             for (int i = 0; i < tamano; i++)
             {
                 if (!strcmp(partidas[i].codigo, &recvBuff[10])){
                     printf(partidas[i].codigo);
                     partidaDamas(sendBuff, recvBuff, comm_socket, &(partidas[i]));
+                    encontrada = true;
                 break;
                 }
             }
+            if (!encontrada) {
+            // Crear nueva partida
+            Partida p;
+            strncpy(p.codigo, &recvBuff[10], 4);
+            p.codigo[4] = '\0';
+
+            printf("Nueva partida creada: %s\n", p.codigo);
+            partidaDamas(sendBuff, recvBuff, comm_socket, &p);
+
+
+        }
+            //p.
             break;
         }else if(recvBuff[0]=='G'&&recvBuff[1]=='U'&&recvBuff[2]=='S'){ // Iniciar sesion
 				Usuario u=getUsuario(&recvBuff[5]);
@@ -359,7 +373,11 @@ void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket, Partida* p
     char nomlog[11];
     printf("A punto de crear Log\n");
     printf(partida->codigo);
-    sprintf(nomlog,"LOG/LOG%i%i%i.log",partida->fecha.tm_year+1900,partida->fecha.tm_mon,partida->fecha.tm_mday);
+    time_t ahora;
+    struct tm fecha_actual;
+    time(&ahora); // obtener tiempo actual en formato time_t
+    fecha_actual = *localtime(&ahora);
+    sprintf(nomlog,"LOG/LOG%i%i%i.log",fecha_actual.tm_year+1900,fecha_actual.tm_mon,fecha_actual.tm_mday);
     FILE * log = fopen(nomlog, "a");
     if(log!=NULL)
     printf("\nLog creado\n");

@@ -215,7 +215,8 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				menuPaginaPrincipal(s,logger);
 				break;
 			case 6:
-				enviarComandoSalir(s);
+				menuModoJuego(s, logger);
+				//enviarComandoSalir(s);
 				logger.anadirLog("Programa cerrado correctamente");
 				cout<<"SALIENDO...";
 				exit(0);
@@ -250,12 +251,14 @@ void caseModoJuego(int *opcion, SOCKET* s, Log& logger) {
 	system("cls");
 	switch (*opcion) {
 			case 1:
-                menuPaginaPrincipal(s, logger);
 				modoJuegoSeleccionado = 1;
+                menuPaginaPrincipal(s, logger);
+				
 				break;
 			case 2:
-			    menuPaginaPrincipal(s, logger);
 				modoJuegoSeleccionado = 2;
+			    menuPaginaPrincipal(s, logger);
+				
 				break;
 			case 6:
 				enviarComandoSalir(s);
@@ -439,9 +442,14 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 
 
                 cout << "Jugaras contra el jugador " << "<" << copia << "> " << endl;
-
+				char* codigo = new char[5]; // 4 dígitos + null terminator
+    			for (int i = 0; i < 4; ++i) {
+        			codigo[i] = '0' + rand() % 10; // dígito aleatorio del 0 al 9
+    			}	
+				codigo[4]='\0';
                 
                 strcpy(sendBuff, "BEGINDAMAS");
+				strcat(sendBuff,codigo);
 				send(*s, sendBuff, sizeof(sendBuff), 0);
 				//send(*s, "a", sizeof("a"), 0);
 				//Sleep(3000);
@@ -449,7 +457,7 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 				recv(*s, recvBuff, sizeof(recvBuff), 0);
 				recvBuff[0]='\0';
 				printf("Data received: %s \n", recvBuff);
-
+				cout<<"Envie cualquier input para empezar\n"<< endl;
 				char input[256];
 				do
 				{
@@ -489,7 +497,7 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 				recv(*s, recvBuff, sizeof(recvBuff), 0);
 				recvBuff[0]='\0';
 				printf("Data received: %s \n", recvBuff);
-
+				cout<<"Envie cualquier input para empezar\n"<< endl;
 				char input[256];
 				do
 				{
@@ -531,7 +539,7 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 		 << "*********************************************************************" << endl
 		 << endl;
 	cout << "Give us a moment..." << endl;
-
+	//cout << modoJuegoSeleccionado << endl;
 	if (modoJuegoSeleccionado == 1) {
 		char sendBuff[512];
 		char recvBuff[1024];
@@ -619,7 +627,7 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 
 			char* campo = strtok(temp, ";");
 			char codigo[5];
-			char juego[6];
+			char juego[8];
 			char fecha[11];
 
 			int i = 0;
@@ -690,7 +698,7 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		recv(*s, recvBuff, sizeof(recvBuff), 0);
 		recvBuff[0]='\0';
 		printf("Data received: %s \n", recvBuff);
-
+		cout<<"Envie cualquier input para empezar\n"<< endl;
 		char input[256];
 		do
 		{
@@ -832,7 +840,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		recv(*s, recvBuff, sizeof(recvBuff), 0);
 		recvBuff[0]='\0';
 		printf("Data received: %s \n", recvBuff);
-
+		cout<<"Envie cualquier input para empezar\n"<< endl;
 		char input[256];
 		do
 		{
@@ -878,7 +886,7 @@ int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 	send(*s, sendBuff, sizeof(sendBuff), 0);
 	recv(*s, recvBuff, sizeof(recvBuff), 0);
 	int i;
-	cout << recvBuff << endl;
+	//cout << recvBuff << endl;
 	if(!strcmp(recvBuff,contrasena)){
 		i=1;
 	}else{
