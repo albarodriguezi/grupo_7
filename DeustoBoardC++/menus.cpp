@@ -140,7 +140,9 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 	while (true) {
 		dibujoPerfil();
 
-		cout << "************************INICIO DE SESION*****************************" << endl;
+		cout <<"*********************************************************************" << endl <<
+          		"************************INICIO DE SESION*****************************"<< endl <<
+          		"*********************************************************************" <<endl<<endl;
 		char email[50];
 		char contrasenya[50];
 
