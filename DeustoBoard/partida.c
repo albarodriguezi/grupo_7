@@ -103,7 +103,7 @@ bool buscarAmigo(){
 
 
     while(1) {
-        printf("Introduce su nombre de usuario: ");
+        printf("Introduzca su nombre de usuario: ");
         fgets(str, sizeof(str), stdin);
         sscanf(str, "%s", nombreUsuario);
         fflush(stdin);
@@ -123,7 +123,7 @@ bool buscarAmigo(){
         //pedir reintento o salida
         printf("El jugador <%s> no se ha encontrado.\n", nombreUsuario);
         char tecla;
-        printf("\nIntenta otra vez. Pulsa 's' si quieres buscar jugador. Pulsa 'n' si quieres salir: \n");
+        printf("\nIntentalo otra vez. Pulsa 's' si quieres buscar jugador. Pulsa 'n' si quieres salir: \n");
         fgets(str, sizeof(str), stdin);
         sscanf(str, "%c", &tecla);
         fflush(stdin);
@@ -233,13 +233,13 @@ Tablero8x8 crearTableroDamas(){
             }else{
                 tableroDamas.array[i][j] = 0;
             }
-            
         }
-        
     }
     return tableroDamas;
     
 }
+
+
 
 void imprimirNumerosTablero(Tablero8x8 tablero){
     for (int i = 0; i < 8; i++)

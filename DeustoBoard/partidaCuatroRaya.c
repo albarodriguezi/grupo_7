@@ -173,7 +173,8 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
         }
     }
 
-    //imprimirTableroCuatroRaya(tablero);
+
+
 
     for (int i = 0; i < 4; i++) { //las fichas ganadoras se reinician. necesario para que no sean amarillas en caso de jugar dos partidas seguidas
     fichasGanadoras[i][0] = -1;
@@ -224,7 +225,7 @@ void menuCuatroRaya(Partida* partida) { //función principal del cuatro en raya,
                 almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero); //se guardan los datos
                 char opcion[5]; //la respuesta del jugador
                 do {
-                    printf("Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");
+                    printf("¿Quieres volver al menu principal? En caso negativo saldras del sistema. S/N\n");
                     fflush(stdin);
                     fgets(opcion, sizeof(opcion), stdin);
                 } while (opcion[0] != 's' && opcion[0] != 'S' && opcion[0] != 'n' && opcion[0] != 'N');
