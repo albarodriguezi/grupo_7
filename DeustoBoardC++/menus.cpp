@@ -821,7 +821,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 {
 	system("cls");
 	cout << "*********************************************************************" << endl
-		 << "************************UNIRSE A UN TORNEO*************************" << endl
+		 << "**************************UNIRSE A UN TORNEO*************************" << endl
 		 << "*********************************************************************" << endl
 		 << endl;
 
@@ -937,7 +937,6 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		cin >> input;
 		printf("Sending message ... \n");
 		strcpy(sendBuff, input);
-		//input[0]='\0';
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		printf("Data sent: %s \n", sendBuff);
 		
@@ -959,7 +958,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		delete[] codes;
 	}
 }
-//--------------------------------------------SOCKET---------------------------------------------------------------
+//--------------------------------------------COMANDOS PARA SOCKET---------------------------------------------------------------
 
 //comando salir
 void enviarComandoSalir(SOCKET *s) {
