@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <winsock2.h>
 #include "servidorPruebaPartida.h"
+#include "servidorPruebaPartidaRaya.h"
 #include "usuario.h"
 #include "torneo.h"
 #include "database.h"
@@ -111,6 +112,9 @@ int main(int argc, char *argv[])
         char substring[11];
         strncpy(substring,recvBuff,10);
         substring[10] = '\0';
+        char substringdos[12];
+        strncpy(substringdos,recvBuff,11);
+        substringdos[11] = '\0';
         printf(recvBuff);
         if (!strcmp(substring, "BEGINDAMAS"))
         {
@@ -139,6 +143,34 @@ int main(int argc, char *argv[])
         }
             //p.
             break;
+        }else if (!strcmp(substringdos, "BEGINCUATRO"))
+        {
+            int tamano = getTamanoListaPartida("4enRaya");
+            Partida * partidas = getListaPartidaJuego("4enRaya");
+            bool encontrada = false;
+            for (int i = 0; i < tamano; i++)
+            {
+                if (!strcmp(partidas[i].codigo, &recvBuff[11])){
+                    printf(partidas[i].codigo);
+                    partidaCuatroRaya(sendBuff, recvBuff, comm_socket, &(partidas[i]));
+                    encontrada = true;
+                break;
+                }
+
+            }
+            if (!encontrada) {
+            // Crear nueva partida
+            Partida p;
+            strncpy(p.codigo, &recvBuff[10], 4);
+            p.codigo[4] = '\0';
+
+            printf("Nueva partida creada: %s\n", p.codigo);
+            partidaCuatroRaya(sendBuff, recvBuff, comm_socket, &p);
+
+
+            }
+            sendBuff[0]='\0';
+            //break;
         }else if(recvBuff[0]=='G'&&recvBuff[1]=='U'&&recvBuff[2]=='S'){ // Iniciar sesion
 				Usuario u=getUsuario(&recvBuff[5]);
 				printf("%s\n",u.contrasenya);
@@ -267,7 +299,7 @@ int main(int argc, char *argv[])
         // send(comm_socket, sendBuff, sizeof(sendBuff), 0);
         printf("Data sent: %s \n", sendBuff);
 
-        if (strcmp(recvBuff, "Bye") == 0)
+        if (strcmp(recvBuff, "Out") == 0)
             break;
     } while (1);
 
@@ -282,7 +314,7 @@ void enviarMensaje(char *recvBuff, char *sendBuff, char *mensaje, SOCKET comm_so
 {
     printf("Sending reply... \n");
     strcpy(sendBuff, "ACK -> ");
-    printf("%s\n",sendBuff);
+    //printf("%s\n",sendBuff);
     printf("About to copy recive buff...\n");
     strcat(sendBuff, recvBuff);
     printf("About to copy the message...\n");
