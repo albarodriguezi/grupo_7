@@ -857,6 +857,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		if (encontrado) {
 			printf("Sending message 1... \n");
 		strcpy(sendBuff, "BEGINDAMAS");
+		strcat(sendBuff, code);
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		Sleep(3000);
 		printf("Receiving message 1... \n");
@@ -922,6 +923,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		if (encontrado) {
 			printf("Sending message 1... \n");
 		strcpy(sendBuff, "BEGINCUATRO");
+		strcat(sendBuff, code);
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		Sleep(3000);
 		printf("Receiving message 1... \n");

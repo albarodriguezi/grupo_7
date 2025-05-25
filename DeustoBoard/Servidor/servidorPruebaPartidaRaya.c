@@ -38,7 +38,21 @@ void partidaCuatroRaya(char *sendBuff, char *recvBuff, SOCKET comm_socket,Partid
     strcpy(partida.juego, "CuatroRaya");
     strcpy(partida.codigotorneo, "0000");
     */
-    menuCuatroRayaSocket(comm_socket,partida);
+    FILE * fichero = crearCSVPartida("partidas.csv");
+    char nomlog[11];
+    printf("A punto de crear Log\n");
+    printf(partida->codigo);
+    time_t ahora;
+    struct tm fecha_actual;
+    time(&ahora); // obtener tiempo actual en formato time_t
+    fecha_actual = *localtime(&ahora);
+    sprintf(nomlog,"LOG/LOG%i%i%i.log",fecha_actual.tm_year+1900,fecha_actual.tm_mon,fecha_actual.tm_mday);
+    FILE * log = fopen(nomlog, "a");
+    if(log!=NULL)
+    printf("\nLog creado\n");
+    fprintf(log, "PartidaCuatroenRaya_%c%c%c%c\n",partida->codigo[0],partida->codigo[1],partida->codigo[2],partida->codigo[3]);
+    fflush(log);
+    menuCuatroRayaSocket(comm_socket,partida,log);
 
     //free(partida.codigo);
 }
@@ -222,7 +236,7 @@ void imprimirTableroCuatroRayaTexto(char tablero[FILAS][COLUMNAS], char* out) {
     }
 }
 
-void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida) {
+void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida,FILE * log) {
     char tablero[FILAS][COLUMNAS];
     for (int i = 0; i < FILAS; i++)
         for (int j = 0; j < COLUMNAS; j++)
@@ -237,11 +251,6 @@ void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida) {
     strcpy(partida->juego, "CuatroRaya");
     almacenarDatosPartida(partida->codigo, 0, partida->juego, partida->fecha, partida->codigotorneo, fichero);
 
-    char nomlog[64];
-    sprintf(nomlog, "Logs/LOG%i%i%i.log", partida->fecha.tm_year + 1900, partida->fecha.tm_mon, partida->fecha.tm_mday);
-    FILE* log = fopen(nomlog, "a");
-    fprintf(log, "PartidaCuatroRaya_%s\n", partida->codigo);
-    fflush(log);
 
     int turno = 0;
     char fichaJugador[2] = {'X', 'O'};

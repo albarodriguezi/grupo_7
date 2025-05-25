@@ -14,7 +14,7 @@
 #include "database.h"
 
 
-void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida);
+void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida,FILE * log);
 
 void imprimirTableroCuatroRayaTexto(char tablero[FILAS][COLUMNAS], char* out);
 
