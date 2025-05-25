@@ -140,7 +140,9 @@ void menuInicioSesion(SOCKET* s, Log& logger) {
 	while (true) {
 		dibujoPerfil();
 
-		cout << "************************INICIO DE SESION*****************************" << endl;
+		cout <<"*********************************************************************" << endl <<
+          		"************************INICIO DE SESION*****************************"<< endl <<
+          		"*********************************************************************" <<endl<<endl;
 		char email[50];
 		char contrasenya[50];
 
@@ -756,7 +758,7 @@ void menuTorneosDisponibles(SOCKET *s, Log &logger)
 		 << endl;
 	cout << "Give us a moment..." << endl;
 
-	if (modoJuegoSeleccionado == 1) {
+	
 		char sendBuff[512];
 		char recvBuff[1024];
 		recvBuff[0] = '\0';
@@ -812,16 +814,14 @@ void menuTorneosDisponibles(SOCKET *s, Log &logger)
 		cin.ignore();
 		cin.get();
 
-	}else {
-		cout << modoJuegoSeleccionado;
-	}
+	
 }
 
 void menuUnirseTorneo(SOCKET *s, Log &logger)
 {
 	system("cls");
 	cout << "*********************************************************************" << endl
-		 << "*************************UNIRSE A UN TORNEO**************************" << endl
+		 << "************************UNIRSE A UNA PARTIDA*************************" << endl
 		 << "*********************************************************************" << endl
 		 << endl;
 
@@ -937,7 +937,6 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		cin >> input;
 		printf("Sending message ... \n");
 		strcpy(sendBuff, input);
-		//input[0]='\0';
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		printf("Data sent: %s \n", sendBuff);
 		
@@ -959,7 +958,7 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		delete[] codes;
 	}
 }
-//--------------------------------------------SOCKET---------------------------------------------------------------
+//--------------------------------------------COMANDOS PARA SOCKET---------------------------------------------------------------
 
 //comando salir
 void enviarComandoSalir(SOCKET *s) {
@@ -1009,3 +1008,4 @@ void enviarComandoRegistro(SOCKET* s, Usuario& u) {
     send(*s, sendBuff, 512, 0);
 	recv(*s, recvBuff,1024,0);
 }
+
