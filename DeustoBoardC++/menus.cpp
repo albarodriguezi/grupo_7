@@ -260,132 +260,20 @@ void caseModoJuego(int *opcion, SOCKET* s, Log& logger) {
 			    menuPaginaPrincipal(s, logger);
 				
 				break;
-			case 6:
+			case 3:
 				enviarComandoSalir(s);
 				logger.anadirLog("Programa cerrado correctamente");
 				cout<<"SALIENDO...";
 				exit(0);
+				//break;
 			default:
 				cout<<"El digito introducido no corresponde a ninguno de los anteriores"<<endl;
 				menuModoJuego(s, logger);
 				break;
 		}
 }
-/*
-void menuPartidasDisponibles(SOCKET *s, Log &logger)
-{
-	system("cls");
-	cout << "*********************************************************************" << endl <<
-			"************************PARTIDAS DISPONIBLES*************************"<< endl <<
-			"*********************************************************************" <<endl<<endl;
-	if (modoJuegoSeleccionado==1){
-		char sendBuff[512];
-		char recvBuff[1024];
-		recvBuff[0]='\0';
-		strcpy(sendBuff, "GPA::Damas");
-    	send(*s, sendBuff, sizeof(sendBuff), 0);
-		//sleep(100);
-		recv(*s, recvBuff, sizeof(recvBuff), 0);
-		int tamano = contarDobleSlash(recvBuff);
-		cout << recvBuff;
-		char* token = strtok(recvBuff, "//");
-		while (token != nullptr) {
-		int i=0;
-		char* tokendos = strtok(token, ";");
-		int j=0;
-		char codigo[5];
-		char juego[6];
-		char fecha[11];
-        while (tokendos != nullptr) {
-			if (j==0){
-				strcpy(codigo,tokendos);
-			}else if(j==1){
-				strcpy(juego,tokendos);
-			}else if(j==2){
-				strcpy(fecha,tokendos);
-			}
-			j++;
-        }
-		cout << i+1 << ". " << juego <<" (" << fecha << ")"<< endl;
-        token = strtok(nullptr, "//");  // avanzar al próximo token
-		i++;
-    }
-	cout << "Type something to get back";
-	char* enter;
-	cin >> enter;
-	}else if(modoJuegoSeleccionado==2){
-
-	}else{
-		cout << modoJuegoSeleccionado;
-	}
-}
-
-void menuPartidasDisponibles(SOCKET *s, Log &logger)
-{
-	system("cls");
-	cout << "*********************************************************************" << endl
-		 << "************************PARTIDAS DISPONIBLES*************************" << endl
-		 << "*********************************************************************" << endl
-		 << endl;
-	cout << "Give us a moment..." << endl;
-
-	if (modoJuegoSeleccionado == 1) {
-		char sendBuff[512];
-		char recvBuff[1024];
-		char juego[6];
-		char fecha[11];
-		char codigo[5];
-		recvBuff[0] = '\0';
 
 
-		strcpy(sendBuff, "GPA::Damas");
-		send(*s, sendBuff, sizeof(sendBuff), 0);
-		recv(*s, recvBuff, sizeof(recvBuff), 0);
-		int tamano = contarSlash(recvBuff);
-		//cout << tamano << endl;
-		int j=0;
-		while (j<tamano){
-		char* listaPartidas[tamano];
-		char *token = strtok(recvBuff, "/");
-		int j = 0;
-		while (j < tamano) {
-			listaPartidas[j] = token;
-			token = strtok(NULL, "/");
-		}
-		j=0;
-		
-		while (j< tamano){
-				char *tokendos = strtok(token, ";");
-				int i=0;
-				while (i<3){
-        			if (i == 0) {
-            			strcpy(codigo, tokendos);
-        			} else if (i == 1) {
-            			strcpy(juego, tokendos);
-        			} else if (i == 2) {
-						strcpy(fecha, tokendos);
-						cout << j << ". " << codigo << endl;
-        			}
-        			i++;
-        			tokendos = strtok(NULL, ";");
-				}
-    		}
-			j++;
-	}
-		cout << "\nPulsa ENTER para volver...";
-		cin.ignore();
-		cin.get();
-	
-	}else if (modoJuegoSeleccionado == 2) {
-		// Otro modo
-	}
-	else {
-		cout << modoJuegoSeleccionado;
-	}
-}
-*/
-//----------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
 void crearPartida(int *opcion, SOCKET* s, Log& logger) {
     system("cls");
     cout << "*********************************************************************" << endl
@@ -447,32 +335,62 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
         			codigo[i] = '0' + rand() % 10; // dígito aleatorio del 0 al 9
     			}	
 				codigo[4]='\0';
-                
-                strcpy(sendBuff, "BEGINDAMAS");
-				strcat(sendBuff,codigo);
-				send(*s, sendBuff, sizeof(sendBuff), 0);
-				//send(*s, "a", sizeof("a"), 0);
-				//Sleep(3000);
-				printf("Receiving message 1... \n");
-				recv(*s, recvBuff, sizeof(recvBuff), 0);
-				recvBuff[0]='\0';
-				printf("Data received: %s \n", recvBuff);
-				cout<<"Envie cualquier input para empezar\n"<< endl;
-				char input[256];
-				do
-				{
-				cin >> input;
-				printf("Sending message ... \n");
-				strcpy(sendBuff, input);
-				input[0]='\0';
-				send(*s, sendBuff, sizeof(sendBuff), 0);
-				printf("Data sent: %s \n", sendBuff);
-				printf("Receiving message ... \n");
-				recv(*s, recvBuff, sizeof(recvBuff), 0);
-				printf("Data received: %s \n", recvBuff);
+                if (modoJuegoSeleccionado == 1) {
+                	strcpy(sendBuff, "BEGINDAMAS");
+					strcat(sendBuff,codigo);
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					//send(*s, "a", sizeof("a"), 0);
+					//Sleep(3000);
+					printf("Receiving message 1... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					recvBuff[0]='\0';
+					printf("Data received: %s \n", recvBuff);
+					cout<<"Envie cualquier input para empezar\n"<< endl;
+					char input[256];
+					do
+					{
+					cin >> input;
+					printf("Sending message ... \n");
+					strcpy(sendBuff, input);
+					//input[0]='\0';
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					printf("Data sent: %s \n", sendBuff);
+					printf("Receiving message ... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					printf("Data received: %s \n", recvBuff);
 				} while (strcmp(input, "Bye"));
-        		        break;
-           		}
+						input[0]='\0';
+						recv(*s, recvBuff, sizeof(recvBuff), 0);
+        		    	return;
+           		}else if(modoJuegoSeleccionado == 2){
+					strcpy(sendBuff, "BEGINCUATRO");
+					strcat(sendBuff,codigo);
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					//send(*s, "a", sizeof("a"), 0);
+					//Sleep(3000);
+					printf("Receiving message 1... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					recvBuff[0]='\0';
+					printf("Data received: %s \n", recvBuff);
+					cout<<"Envie cualquier input para empezar\n"<< endl;
+					char input[256];
+					do
+					{
+					cin >> input;
+					printf("Sending message ... \n");
+					strcpy(sendBuff, input);
+					//input[0]='\0';
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					printf("Data sent: %s \n", sendBuff);
+					printf("Receiving message ... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					printf("Data received: %s \n", recvBuff);
+					} while (strcmp(input, "Bye"));
+					input[0]='\0';
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+        		    return;
+				}
+			}
 
             case 2: {
 				//cout << "aa";
@@ -487,31 +405,68 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
                         break;
                     }
                 }
+				char* codigo = new char[5]; // 4 dígitos + null terminator
+    			for (int i = 0; i < 4; ++i) {
+        			codigo[i] = '0' + rand() % 10; // dígito aleatorio del 0 al 9
+    			}	
+				codigo[4]='\0';
 
                 if (encontrado) {
-                    cout << "Jugador <" << nombreBuscado << "> encontrado. Iniciando partida..." << endl;
-                    strcpy(sendBuff, "BEGINDAMAS");
+                    if (modoJuegoSeleccionado == 1) {
+                	strcpy(sendBuff, "BEGINDAMAS");
+					strcat(sendBuff,codigo);
 					send(*s, sendBuff, sizeof(sendBuff), 0);
 					//send(*s, "a", sizeof("a"), 0);
+					//Sleep(3000);
 					printf("Receiving message 1... \n");
-				recv(*s, recvBuff, sizeof(recvBuff), 0);
-				recvBuff[0]='\0';
-				printf("Data received: %s \n", recvBuff);
-				cout<<"Envie cualquier input para empezar\n"<< endl;
-				char input[256];
-				do
-				{
-				cin >> input;
-				printf("Sending message ... \n");
-				strcpy(sendBuff, input);
-				input[0]='\0';
-				send(*s, sendBuff, sizeof(sendBuff), 0);
-				printf("Data sent: %s \n", sendBuff);
-				printf("Receiving message ... \n");
-				recv(*s, recvBuff, sizeof(recvBuff), 0);
-				printf("Data received: %s \n", recvBuff);
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					recvBuff[0]='\0';
+					printf("Data received: %s \n", recvBuff);
+					cout<<"Envie cualquier input para empezar\n"<< endl;
+					char input[256];
+					do
+					{
+					cin >> input;
+					printf("Sending message ... \n");
+					strcpy(sendBuff, input);
+					//input[0]='\0';
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					printf("Data sent: %s \n", sendBuff);
+					printf("Receiving message ... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					printf("Data received: %s \n", recvBuff);
 				} while (strcmp(input, "Bye"));
-        		        break;
+						input[0]='\0';
+						recv(*s, recvBuff, sizeof(recvBuff), 0);
+        		    	return;
+           		}else if(modoJuegoSeleccionado == 2){
+					strcpy(sendBuff, "BEGINCUATRO");
+					strcat(sendBuff,codigo);
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					//send(*s, "a", sizeof("a"), 0);
+					//Sleep(3000);
+					printf("Receiving message 1... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					recvBuff[0]='\0';
+					printf("Data received: %s \n", recvBuff);
+					cout<<"Envie cualquier input para empezar\n"<< endl;
+					char input[256];
+					do
+					{
+					cin >> input;
+					printf("Sending message ... \n");
+					strcpy(sendBuff, input);
+					//input[0]='\0';
+					send(*s, sendBuff, sizeof(sendBuff), 0);
+					printf("Data sent: %s \n", sendBuff);
+					printf("Receiving message ... \n");
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+					printf("Data received: %s \n", recvBuff);
+					} while (strcmp(input, "Bye"));
+					input[0]='\0';
+					recv(*s, recvBuff, sizeof(recvBuff), 0);
+        		    return;
+				}
                 } else {
                     cout << "Jugador no encontrado." << endl;
                 }
@@ -705,7 +660,7 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		cin >> input;
 		printf("Sending message ... \n");
 		strcpy(sendBuff, input);
-		input[0]='\0';
+		//input[0]='\0';
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		printf("Data sent: %s \n", sendBuff);
 		
@@ -713,6 +668,9 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		recv(*s, recvBuff, sizeof(recvBuff), 0);
 		printf("Data received: %s \n", recvBuff);
 		} while (strcmp(input, "Bye"));
+		input[0]='\0';
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+        return;
 			}else {
 		cout << "Code doesn't exist." << endl;
 			}
@@ -722,6 +680,71 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 			delete[] codes[i];
 		}
 		delete[] codes;
+	}else if(modoJuegoSeleccionado==2){
+		char sendBuff[512];
+		char recvBuff[1024] = {0};
+
+		strcpy(sendBuff, "GPA::4enRaya");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		int max = contarSlash(recvBuff);
+
+		char** codes = getCodigoPartidas(recvBuff,max);
+		cout << "unirsepartida2" << endl;
+		cout << "Codigos disponibles:" << endl;
+		for (int i = 0; i < max; ++i) {
+			cout << codes[i] << endl;
+		}
+		
+		char code[5];
+		cout << "\nInsertar codigo: ";
+		cin >> code;
+
+		bool encontrado = false;
+		for (int i = 0; i < max; ++i) {
+			if (strcmp(code, codes[i]) == 0) {
+				encontrado = true;
+				break;
+			}
+		}
+
+		if (encontrado) {
+		printf("Sending message 2... \n");
+		strcpy(sendBuff, "BEGINCUATRO");
+		strcat(sendBuff, code);
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		Sleep(3000);
+		printf("Receiving message 1... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		recvBuff[0]='\0';
+		printf("Data received: %s \n", recvBuff);
+		cout<<"Envie cualquier input para empezar\n"<< endl;
+		char input[256];
+		do
+		{
+		cin >> input;
+		printf("Sending message ... \n");
+		strcpy(sendBuff, input);
+		//input[0]='\0';
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		printf("Data sent: %s \n", sendBuff);
+		
+		printf("Receiving message ... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		printf("Data received: %s \n", recvBuff);
+		} while (strcmp(input, "Bye"));
+		input[0]='\0';
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+        return;
+			}else {
+		cout << "Code doesn't exist." << endl;
+			}
+
+		// Liberar memoria
+		for (int i = 0; i < max; ++i) {
+			delete[] codes[i];
+		}
 	}
 }
 void menuTorneosDisponibles(SOCKET *s, Log &logger)
@@ -855,6 +878,74 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 		recv(*s, recvBuff, sizeof(recvBuff), 0);
 		printf("Data received: %s \n", recvBuff);
 		} while (strcmp(input, "Bye"));
+			input[0]='\0';
+			recv(*s, recvBuff, sizeof(recvBuff), 0);
+        	return;
+			}else {
+		cout << "Code doesn't exist." << endl;
+			}
+
+		// Liberar memoria
+		for (int i = 0; i < max; ++i) {
+			delete[] codes[i];
+		}
+		delete[] codes;
+	}else if(modoJuegoSeleccionado==2){
+		char sendBuff[512];
+		char recvBuff[1024] = {0};
+
+		strcpy(sendBuff, "GTO");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+
+		int max = contarSlash(recvBuff);
+
+		char** codes = getCodigoPartidas(recvBuff,max);
+
+		cout << "Codigos disponibles:" << endl;
+		for (int i = 0; i < max; ++i) {
+			cout << codes[i] << endl;
+		}
+
+		char code[5];
+		cout << "\nInsertar codigo: ";
+		cin >> code;
+
+		bool encontrado = false;
+		for (int i = 0; i < max; ++i) {
+			if (strcmp(code, codes[i]) == 0) {
+				encontrado = true;
+				break;
+			}
+		}
+
+		if (encontrado) {
+			printf("Sending message 1... \n");
+		strcpy(sendBuff, "BEGINCUATRO");
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		Sleep(3000);
+		printf("Receiving message 1... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		recvBuff[0]='\0';
+		printf("Data received: %s \n", recvBuff);
+		cout<<"Envie cualquier input para empezar\n"<< endl;
+		char input[256];
+		do
+		{
+		cin >> input;
+		printf("Sending message ... \n");
+		strcpy(sendBuff, input);
+		//input[0]='\0';
+		send(*s, sendBuff, sizeof(sendBuff), 0);
+		printf("Data sent: %s \n", sendBuff);
+		
+		printf("Receiving message ... \n");
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+		printf("Data received: %s \n", recvBuff);
+		} while (strcmp(input, "Bye"));
+		input[0]='\0';
+		recv(*s, recvBuff, sizeof(recvBuff), 0);
+        return;
 			}else {
 		cout << "Code doesn't exist." << endl;
 			}
@@ -871,8 +962,9 @@ void menuUnirseTorneo(SOCKET *s, Log &logger)
 //comando salir
 void enviarComandoSalir(SOCKET *s) {
 	char sendBuff[512];
-	strcpy(sendBuff, "Bye");
+	strcpy(sendBuff, "Out");
 	send(*s, sendBuff, sizeof(sendBuff), 0);
+	exit(0);
 }
 
 //comando iniciar sesion
