@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <winsock2.h>
 #include "servidorPruebaPartida.h"
-#include "database.h"
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
@@ -14,7 +13,7 @@
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 6000
-
+/*
 int main(int argc, char *argv[])
 {
 
@@ -113,7 +112,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
+*/
 void enviarMensaje(char *recvBuff, char *sendBuff, char *mensaje, SOCKET comm_socket)
 {
     printf("Sending reply... \n");
@@ -844,4 +843,26 @@ void imprimirTableroDamasEnServer(Tablero8x8 tablero){
         printf("\n");
     }
     printf("  1  2  3  4  5  6  7  8\n");
+}
+
+FILE* crearCSVPartida(char* fichero){
+    FILE* fich = fopen(fichero, "w");
+    return fich;
+}
+void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero){
+    
+    fprintf(fichero,"codigoPartida,resultado,juego,anyo,mes,dia,codigoTorneo\n");
+    if (fecha.tm_mday <10 && fecha.tm_mon <10)
+    {
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else if(fecha.tm_mday <10){
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,0%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else if(fecha.tm_mon <10){
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,0%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }else{
+        fprintf(fichero, "%i%i%i%i,%i,%s,%i,%i,%i,%i%i%i%i\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }
+    fclose(fichero);
+    //csvToDatabasePartida();
+    fichero = NULL;
 }
