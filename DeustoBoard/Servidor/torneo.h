@@ -11,9 +11,6 @@ typedef struct{
 }Torneo;
 
 
-
-//void metodoEjemploTorneo();
-//void cargarTorneosCSV();
 void cargarTorneosEjemplo();
 void unirseTorneo(int modoJuegoSeleccionado);
 void torneosDisponibles(int opcion);

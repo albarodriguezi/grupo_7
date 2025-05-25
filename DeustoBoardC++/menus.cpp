@@ -7,8 +7,6 @@
 #include <winsock2.h>
 #include <windows.h>
 
-//#include "usuario.h"
-//menu principal(registro, inicio de sesion, salir de la pagina)
 void menuPrincipal(SOCKET* s, Log& logger) {
 	system("cls");
 	int opcion;
@@ -93,49 +91,6 @@ void menuRegistrarse(SOCKET* s, Log& logger) {
 }
 
 //menu inicio de sesion (pide email y constraseña)
-/*
-void menuInicioSesion(SOCKET* s, Log& logger) {
-	dibujoPerfil();
-
-    cout <<"*********************************************************************" << endl <<
-           "************************INICIO DE SESION*****************************"<< endl <<
-           "*********************************************************************" <<endl<<endl;
-
-	char email[50];
-	char contrasenya[50];
-	cout<<"Inserte email: ";
-	cin>>email;
-	cout<<"Inserte contrasena: ";
-	cin>>contrasenya;
-
-	int existe = enviarComandoIniciarSesion(s, email, contrasenya);
-
-
-
-	if (existe == 1) {
-
-		cout << "Accediendo..." << endl;
-
-
-		logger.anadirLog("Inicio de sesion correcto");
-
-		Sleep(3000);
-		//te lleva al menu para elegir el juego qeu quieres jugar
-		menuModoJuego(s, logger);
-	}
-
-
-	cout << "Error al iniciar sesion." << endl;
-	logger.anadirLog("Error al iniciar sesion");
-
-	Sleep(3000);
-	//hay que cambiarlo --> deveria llevarte a la pagina de inicio otra vez
-	menuInicioSesion(s, logger);
-
-
-}
-*/
-
 void menuInicioSesion(SOCKET* s, Log& logger) {
 	while (true) {
 		dibujoPerfil();
@@ -218,7 +173,6 @@ void casePaginaPrincipal(int *opcion, SOCKET* s, Log& logger) {
 				break;
 			case 6:
 				menuModoJuego(s, logger);
-				//enviarComandoSalir(s);
 				logger.anadirLog("Programa cerrado correctamente");
 				cout<<"SALIENDO...";
 				exit(0);
@@ -267,7 +221,6 @@ void caseModoJuego(int *opcion, SOCKET* s, Log& logger) {
 				logger.anadirLog("Programa cerrado correctamente");
 				cout<<"SALIENDO...";
 				exit(0);
-				//break;
 			default:
 				cout<<"El digito introducido no corresponde a ninguno de los anteriores"<<endl;
 				menuModoJuego(s, logger);
@@ -318,7 +271,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 		
         switch (opcionRival) {
             case 1: {
-				//cout << tokens[1] << endl;
 
                 // Elegimos usuario aleatorio
                 srand((unsigned int)time(NULL));
@@ -341,8 +293,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
                 	strcpy(sendBuff, "BEGINDAMAS");
 					strcat(sendBuff,codigo);
 					send(*s, sendBuff, sizeof(sendBuff), 0);
-					//send(*s, "a", sizeof("a"), 0);
-					//Sleep(3000);
 					printf("Receiving message 1... \n");
 					recv(*s, recvBuff, sizeof(recvBuff), 0);
 					recvBuff[0]='\0';
@@ -354,7 +304,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					cin >> input;
 					printf("Sending message ... \n");
 					strcpy(sendBuff, input);
-					//input[0]='\0';
 					send(*s, sendBuff, sizeof(sendBuff), 0);
 					printf("Data sent: %s \n", sendBuff);
 					printf("Receiving message ... \n");
@@ -368,8 +317,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					strcpy(sendBuff, "BEGINCUATRO");
 					strcat(sendBuff,codigo);
 					send(*s, sendBuff, sizeof(sendBuff), 0);
-					//send(*s, "a", sizeof("a"), 0);
-					//Sleep(3000);
 					printf("Receiving message 1... \n");
 					recv(*s, recvBuff, sizeof(recvBuff), 0);
 					recvBuff[0]='\0';
@@ -381,7 +328,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					cin >> input;
 					printf("Sending message ... \n");
 					strcpy(sendBuff, input);
-					//input[0]='\0';
 					send(*s, sendBuff, sizeof(sendBuff), 0);
 					printf("Data sent: %s \n", sendBuff);
 					printf("Receiving message ... \n");
@@ -395,7 +341,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 			}
 
             case 2: {
-				//cout << "aa";
                 char nombreBuscado[50];
                 cout << "Introduce el nombre del amigo: ";
                 cin >> nombreBuscado;
@@ -418,8 +363,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
                 	strcpy(sendBuff, "BEGINDAMAS");
 					strcat(sendBuff,codigo);
 					send(*s, sendBuff, sizeof(sendBuff), 0);
-					//send(*s, "a", sizeof("a"), 0);
-					//Sleep(3000);
 					printf("Receiving message 1... \n");
 					recv(*s, recvBuff, sizeof(recvBuff), 0);
 					recvBuff[0]='\0';
@@ -431,7 +374,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					cin >> input;
 					printf("Sending message ... \n");
 					strcpy(sendBuff, input);
-					//input[0]='\0';
 					send(*s, sendBuff, sizeof(sendBuff), 0);
 					printf("Data sent: %s \n", sendBuff);
 					printf("Receiving message ... \n");
@@ -445,8 +387,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					strcpy(sendBuff, "BEGINCUATRO");
 					strcat(sendBuff,codigo);
 					send(*s, sendBuff, sizeof(sendBuff), 0);
-					//send(*s, "a", sizeof("a"), 0);
-					//Sleep(3000);
 					printf("Receiving message 1... \n");
 					recv(*s, recvBuff, sizeof(recvBuff), 0);
 					recvBuff[0]='\0';
@@ -458,7 +398,6 @@ void crearPartida(int *opcion, SOCKET* s, Log& logger) {
 					cin >> input;
 					printf("Sending message ... \n");
 					strcpy(sendBuff, input);
-					//input[0]='\0';
 					send(*s, sendBuff, sizeof(sendBuff), 0);
 					printf("Data sent: %s \n", sendBuff);
 					printf("Receiving message ... \n");
@@ -496,7 +435,6 @@ void menuPartidasDisponibles(SOCKET *s, Log &logger)
 		 << "*********************************************************************" << endl
 		 << endl;
 	cout << "Give us a moment..." << endl;
-	//cout << modoJuegoSeleccionado << endl;
 	if (modoJuegoSeleccionado == 1) {
 		char sendBuff[512];
 		char recvBuff[1024];
@@ -728,7 +666,6 @@ void menuUnirsePartida(SOCKET *s, Log &logger)
 		cin >> input;
 		printf("Sending message ... \n");
 		strcpy(sendBuff, input);
-		//input[0]='\0';
 		send(*s, sendBuff, sizeof(sendBuff), 0);
 		printf("Data sent: %s \n", sendBuff);
 		
@@ -770,7 +707,6 @@ void menuTorneosDisponibles(SOCKET *s, Log &logger)
 		// Crear una copia para no modificar recvBuff original
 		char tempBuff[1024];
 		strcpy(tempBuff, recvBuff);
-		//cout << tempBuff;
 		// Lista auxiliar
 		const int MAX_TORNEOS = 50;
 		char* listaPartidas[MAX_TORNEOS];
@@ -979,7 +915,6 @@ int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 	send(*s, sendBuff, sizeof(sendBuff), 0);
 	recv(*s, recvBuff, sizeof(recvBuff), 0);
 	int i;
-	//cout << recvBuff << endl;
 	if(!strcmp(recvBuff,contrasena)){
 		i=1;
 	}else{
@@ -994,8 +929,6 @@ int enviarComandoIniciarSesion(SOCKET* s, char* email,char* contrasena){
 void enviarComandoRegistro(SOCKET* s, Usuario& u) {
 	char sendBuff[512];
 	char recvBuff[1024];
-	//strcpy(sendBuff, "COMP_REGISTRO");
-	//send(*s, sendBuff, sizeof(sendBuff), 0);
 	sendBuff[0]='\0';
     strcpy(sendBuff,"REG::");
     strcat(sendBuff,u.getNombre());

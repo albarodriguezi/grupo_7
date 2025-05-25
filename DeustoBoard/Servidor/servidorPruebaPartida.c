@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
 
     csvToDatabaseRegistrado();
 
-
     printf("\nInitialising Winsock...\n");
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
@@ -106,197 +105,213 @@ int main(int argc, char *argv[])
     {
         recibirMensaje(recvBuff, comm_socket);
         printf("Sending reply... \n");
-		strcpy(sendBuff, "ACK -> ");
-		strcat(sendBuff, recvBuff);
+        strcpy(sendBuff, "ACK -> ");
+        strcat(sendBuff, recvBuff);
         printf("2\n");
         char substring[11];
-        strncpy(substring,recvBuff,10);
+        strncpy(substring, recvBuff, 10);
         substring[10] = '\0';
         char substringdos[12];
-        strncpy(substringdos,recvBuff,11);
+        strncpy(substringdos, recvBuff, 11);
         substringdos[11] = '\0';
         printf(recvBuff);
         if (!strcmp(substring, "BEGINDAMAS"))
         {
             int tamano = getTamanoListaPartida("Damas");
-            Partida * partidas = getListaPartidaJuego("Damas");
+            Partida *partidas = getListaPartidaJuego("Damas");
             bool encontrada = false;
             for (int i = 0; i < tamano; i++)
             {
-                if (!strcmp(partidas[i].codigo, &recvBuff[10])){
+                if (!strcmp(partidas[i].codigo, &recvBuff[10]))
+                {
                     printf(partidas[i].codigo);
                     partidaDamas(sendBuff, recvBuff, comm_socket, &(partidas[i]));
                     encontrada = true;
-                break;
+                    break;
                 }
             }
-            if (!encontrada) {
-            // Crear nueva partida
-            Partida p;
-            strncpy(p.codigo, &recvBuff[10], 4);
-            p.codigo[4] = '\0';
+            if (!encontrada)
+            {
+                // Crear nueva partida
+                Partida p;
+                strncpy(p.codigo, &recvBuff[10], 4);
+                p.codigo[4] = '\0';
 
-            printf("Nueva partida creada: %s\n", p.codigo);
-            partidaDamas(sendBuff, recvBuff, comm_socket, &p);
-
-
-        }
-            //p.
+                printf("Nueva partida creada: %s\n", p.codigo);
+                partidaDamas(sendBuff, recvBuff, comm_socket, &p);
+            }
             break;
-        }else if (!strcmp(substringdos, "BEGINCUATRO"))
+        }
+        else if (!strcmp(substringdos, "BEGINCUATRO"))
         {
             int tamano = getTamanoListaPartida("4enRaya");
-            Partida * partidas = getListaPartidaJuego("4enRaya");
+            Partida *partidas = getListaPartidaJuego("4enRaya");
             bool encontrada = false;
             for (int i = 0; i < tamano; i++)
             {
-                if (!strcmp(partidas[i].codigo, &recvBuff[11])){
+                if (!strcmp(partidas[i].codigo, &recvBuff[11]))
+                {
                     printf(partidas[i].codigo);
                     partidaCuatroRaya(sendBuff, recvBuff, comm_socket, &(partidas[i]));
                     encontrada = true;
-                break;
+                    break;
                 }
-
             }
-            if (!encontrada) {
-            // Crear nueva partida
+            if (!encontrada)
+            {
+                // Crear nueva partida
+                Partida p;
+                strncpy(p.codigo, &recvBuff[10], 4);
+                p.codigo[4] = '\0';
+
+                printf("Nueva partida creada: %s\n", p.codigo);
+                partidaCuatroRaya(sendBuff, recvBuff, comm_socket, &p);
+            }
+            sendBuff[0] = '\0';
+        }
+        else if (recvBuff[0] == 'G' && recvBuff[1] == 'U' && recvBuff[2] == 'S')
+        { // Iniciar sesion
+            Usuario u = getUsuario(&recvBuff[5]);
+            printf("%s\n", u.contrasenya);
+            strcpy(sendBuff, u.contrasenya);
+        }
+        else if (recvBuff[0] == 'R' && recvBuff[1] == 'E' && recvBuff[2] == 'G')
+        { // Registrar usuario
+            Usuario u;
+            int i = 0;
+            char datos[155];
+            strcpy(datos, &recvBuff[5]);
+            char *token = strtok(datos, ";");
+            while (token != NULL && i < 3)
+            {
+                if (i == 0)
+                {
+                    strcpy(u.nombreUsuario, token);
+                }
+                else if (i == 1)
+                {
+                    strcpy(u.email, token);
+                }
+                else if (i == 2)
+                {
+                    strcpy(u.contrasenya, token);
+                }
+                i++;
+                token = strtok(NULL, ";");
+            }
+            strcpy(sendBuff, u.nombreUsuario);
+            saveUsuario(u);
+        }
+        else if (recvBuff[0] == 'G' && recvBuff[1] == 'P' && recvBuff[2] == 'A')
+        { // Get partida for a game
+            int tamano = getTamanoListaPartida(&recvBuff[5]);
+            int i = 0;
+            Partida *ps = getListaPartidaJuego(&recvBuff[5]);
+            sendBuff[0] = '\0';
+            while (i < tamano)
+            {
+                strcat(sendBuff, ps[i].codigo);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, ps[i].juego);
+                strcat(sendBuff, ";");
+                char dateStr[11];
+                strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &ps[i].fecha);
+                strcat(sendBuff, dateStr);
+                strcat(sendBuff, "/");
+
+                i++;
+            }
+            strcat(sendBuff, "\0");
+        }
+        else if (recvBuff[0] == 'G' && recvBuff[1] == 'U' && recvBuff[2] == 'U')
+        { // Get lista usuario
+            int tamano = getTamanoListaUsuario();
+            int i = 0;
+            Usuario *us = getListaUsuario();
+            sendBuff[0] = '\0';
+
+            while (i < tamano)
+            {
+                strcat(sendBuff, us[i].email);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, us[i].nombreUsuario);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, us[i].contrasenya);
+                strcat(sendBuff, "//");
+                i++;
+                printf("%i\n", i);
+            }
+            printf("%s\n", sendBuff);
+        }
+        else if (recvBuff[0] == 'S' && recvBuff[1] == 'P' && recvBuff[2] == 'A')
+        { // SPA Insert Partida
             Partida p;
-            strncpy(p.codigo, &recvBuff[10], 4);
-            p.codigo[4] = '\0';
-
-            printf("Nueva partida creada: %s\n", p.codigo);
-            partidaCuatroRaya(sendBuff, recvBuff, comm_socket, &p);
-
-
+            int i = 0;
+            char datos[155];
+            strcpy(datos, &recvBuff[5]);
+            char *token = strtok(datos, ";");
+            while (token != NULL && i < 3)
+            {
+                if (i == 0)
+                {
+                    strcpy(p.codigo, token);
+                }
+                else if (i == 1)
+                {
+                    strcpy(p.juego, token);
+                }
+                else if (i == 2)
+                {
+                    sscanf(token, "%d-%d-%d", &p.fecha.tm_year, &p.fecha.tm_mon, &p.fecha.tm_mday);
+                    p.fecha.tm_year -= 1900;
+                    p.fecha.tm_mon -= 1;
+                }
+                i++;
+                token = strtok(NULL, ";");
             }
-            sendBuff[0]='\0';
-            //break;
-        }else if(recvBuff[0]=='G'&&recvBuff[1]=='U'&&recvBuff[2]=='S'){ // Iniciar sesion
-				Usuario u=getUsuario(&recvBuff[5]);
-				printf("%s\n",u.contrasenya);
-				strcpy(sendBuff,u.contrasenya);
-		}else if(recvBuff[0]=='R'&&recvBuff[1]=='E'&&recvBuff[2]=='G'){ //Registrar usuario
-				Usuario u;
-				int i=0;
-				char datos[155];
-				strcpy(datos,&recvBuff[5]);
-				char *token = strtok(datos, ";");
-				while (token != NULL && i < 3) {
-        			if (i == 0) {
-            			strcpy(u.nombreUsuario, token);
-        			} else if (i == 1) {
-            			strcpy(u.email, token);
-        			} else if (i == 2) {
-            			strcpy(u.contrasenya, token);
-        			}
-        			i++;
-        			token = strtok(NULL, ";");
-    			}
-				strcpy(sendBuff,u.nombreUsuario);
-				saveUsuario(u);
-			}else if(recvBuff[0]=='G'&&recvBuff[1]=='P'&&recvBuff[2]=='A'){  // Get partida for a game
-				int tamano = getTamanoListaPartida(&recvBuff[5]);
-				int i=0;
-				Partida* ps=getListaPartidaJuego(&recvBuff[5]);
-				sendBuff[0]='\0';
-				while(i<tamano){
-					strcat(sendBuff,ps[i].codigo);
-					strcat(sendBuff,";");
-					strcat(sendBuff,ps[i].juego);
-					strcat(sendBuff,";");
-					char dateStr[11];  
-    				strftime(dateStr, sizeof(dateStr), "%Y-%m-%d", &ps[i].fecha);
-					strcat(sendBuff,dateStr);
-					strcat(sendBuff,"/");
+            strcpy(p.codigotorneo, "0000");
+            p.resultado = 0;
+            strcpy(sendBuff, p.codigo);
+            savePartida(p);
+        }
+        else if (recvBuff[0] == 'G' && recvBuff[1] == 'T' && recvBuff[2] == 'O')
+        { // Get partida for a game
+            int tamano = getTamanoListaTorneo();
+            int i = 0;
+            Torneo *ts = getListaTorneo();
+            sendBuff[0] = '\0';
+            while (i < tamano)
+            {
+                strcat(sendBuff, ts[i].codt);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, ts[i].fechai);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, ts[i].fechaf);
+                strcat(sendBuff, ";");
+                strcat(sendBuff, ts[i].nombret);
+                strcat(sendBuff, "/");
 
-					
-					i++;
-				}
-                strcat(sendBuff,"\0");
+                i++;
+            }
+            strcat(sendBuff, "\0");
+        }
+        else if (recvBuff[0] == 'G' && recvBuff[1] == 'N' && recvBuff[2] == 'U')
+        { // Get partida for a game
+            int tamano = getTamanoListaUsuario();
+            int i = 0;
+            Usuario *us = getListaUsuario();
+            sendBuff[0] = '\0';
 
-			}else if(recvBuff[0]=='G'&&recvBuff[1]=='U'&&recvBuff[2]=='U'){  //Get lista usuario
-				int tamano = getTamanoListaUsuario();
-				int i=0;
-				Usuario* us=getListaUsuario();
-				sendBuff[0]='\0';
-				
-				while(i<tamano){
-					strcat(sendBuff,us[i].email);
-					strcat(sendBuff,";");
-					strcat(sendBuff,us[i].nombreUsuario);
-					strcat(sendBuff,";");
-					strcat(sendBuff,us[i].contrasenya);
-					strcat(sendBuff,"//");
-					i++;
-					printf("%i\n",i);
-				}
-				printf("%s\n",sendBuff);
-
-			}else if(recvBuff[0]=='S'&&recvBuff[1]=='P'&&recvBuff[2]=='A'){ //SPA Insert Partida
-				Partida p;  
-				int i=0;
-				char datos[155];
-				strcpy(datos,&recvBuff[5]);
-				char *token = strtok(datos, ";");
-				while (token != NULL && i < 3) {
-        			if (i == 0) {
-            			strcpy(p.codigo, token);
-        			} else if (i == 1) {
-            			strcpy(p.juego, token);
-        			} else if (i == 2) {
-						sscanf(token, "%d-%d-%d", &p.fecha.tm_year, &p.fecha.tm_mon, &p.fecha.tm_mday);
-    					p.fecha.tm_year -= 1900;  
-    					p.fecha.tm_mon -= 1;
-        			}
-        			i++;
-        			token = strtok(NULL, ";");
-    			}
-				strcpy(p.codigotorneo, "0000");
-				p.resultado=0;
-				strcpy(sendBuff,p.codigo);
-				savePartida(p);
-			}else if(recvBuff[0]=='G'&&recvBuff[1]=='T'&&recvBuff[2]=='O'){  // Get partida for a game
-				int tamano = getTamanoListaTorneo();
-				int i=0;
-				Torneo* ts=getListaTorneo();
-				sendBuff[0]='\0';
-				while(i<tamano){
-					strcat(sendBuff,ts[i].codt);
-					strcat(sendBuff,";");
-					strcat(sendBuff,ts[i].fechai);
-					strcat(sendBuff,";");
-					strcat(sendBuff,ts[i].fechaf);
-					strcat(sendBuff,";");
-					strcat(sendBuff,ts[i].nombret);
-					strcat(sendBuff,"/");
-
-					
-					i++;
-				}
-                strcat(sendBuff,"\0");
-
-			}else if(recvBuff[0]=='G'&&recvBuff[1]=='N'&&recvBuff[2]=='U'){  // Get partida for a game
-				int tamano = getTamanoListaUsuario();
-				int i=0;
-				Usuario* us=getListaUsuario();
-				sendBuff[0]='\0';
-				
-				while(i<tamano){
-					strcat(sendBuff,us[i].nombreUsuario);
-					strcat(sendBuff,"/");
-					i++;
-					printf("%i\n",i);
-				}
-				printf("%s\n",sendBuff);
-
-			}
+            while (i < tamano)
+            {
+                strcat(sendBuff, us[i].nombreUsuario);
+                strcat(sendBuff, "/");
+                i++;
+                printf("%i\n", i);
+            }
+            printf("%s\n", sendBuff);
+        }
         send(comm_socket, sendBuff, sizeof(sendBuff), 0);
-            
-        
-
-        // strcat(sendBuff, "\nGameStart");
-        // partidaDamas(sendBuff);
-        // send(comm_socket, sendBuff, sizeof(sendBuff), 0);
         printf("Data sent: %s \n", sendBuff);
 
         if (strcmp(recvBuff, "Out") == 0)
@@ -314,11 +329,10 @@ void enviarMensaje(char *recvBuff, char *sendBuff, char *mensaje, SOCKET comm_so
 {
     printf("Sending reply... \n");
     strcpy(sendBuff, "ACK -> ");
-    //printf("%s\n",sendBuff);
     printf("About to copy recive buff...\n");
     strcat(sendBuff, recvBuff);
     printf("About to copy the message...\n");
-    strcat(sendBuff,"\n");
+    strcat(sendBuff, "\n");
     strcat(sendBuff, mensaje);
     printf("Almost sent...\n");
     send(comm_socket, sendBuff, 1024, 0);
@@ -381,27 +395,28 @@ Tablero8x8 crearTableroDamas()
     }
     return tableroDamas;
 }
-void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket, Partida* partida)
+void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket, Partida *partida)
 {
     char mensaje[800];
     strcpy(mensaje, "\nIniciando partida a las Damas...\n Envíe cualquier input para empezar\n");
     Tablero8x8 tableroDamas = crearTableroDamas();
     imprimirTableroDamas(tableroDamas, mensaje);
-    enviarMensaje(recvBuff,sendBuff,mensaje, comm_socket);
+    enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
 
     char *temp = recibirMensaje(recvBuff, comm_socket);
-    if(!strcmp(temp, "Bye")){
+    if (!strcmp(temp, "Bye"))
+    {
         return;
     }
     int isGameOver = 0;
     int numDamasN = 12;
     int numDamasB = 12;
     int ficha[2];
-    //Necesito este string para recoger el input
+    // Necesito este string para recoger el input
     char str[4];
     int movimiento;
-    
-    FILE * fichero = crearCSVPartida("partidas.csv");
+
+    FILE *fichero = crearCSVPartida("partidas.csv");
     char nomlog[11];
     printf("A punto de crear Log\n");
     printf(partida->codigo);
@@ -409,36 +424,36 @@ void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket, Partida* p
     struct tm fecha_actual;
     time(&ahora); // obtener tiempo actual en formato time_t
     fecha_actual = *localtime(&ahora);
-    sprintf(nomlog,"LOG/LOG%i%i%i.log",fecha_actual.tm_year+1900,fecha_actual.tm_mon,fecha_actual.tm_mday);
-    FILE * log = fopen(nomlog, "a");
-    if(log!=NULL)
-    printf("\nLog creado\n");
-    fprintf(log, "PartidaLasDamas_%c%c%c%c\n",partida->codigo[0],partida->codigo[1],partida->codigo[2],partida->codigo[3]);
+    sprintf(nomlog, "LOG/LOG%i%i%i.log", fecha_actual.tm_year + 1900, fecha_actual.tm_mon, fecha_actual.tm_mday);
+    FILE *log = fopen(nomlog, "a");
+    if (log != NULL)
+        printf("\nLog creado\n");
+    fprintf(log, "PartidaLasDamas_%c%c%c%c\n", partida->codigo[0], partida->codigo[1], partida->codigo[2], partida->codigo[3]);
     fflush(log);
-    almacenarDatosPartida(partida->codigo,0,partida->juego,partida->fecha,partida->codigotorneo,fichero);
+    almacenarDatosPartida(partida->codigo, 0, partida->juego, partida->fecha, partida->codigotorneo, fichero);
     csvToDatabasePartida();
-    
-    //Bucle del juego
+
+    // Bucle del juego
     do
     {
-        turnoJugador(&tableroDamas, &str[4], movimiento,2, &numDamasB, &isGameOver, sendBuff, recvBuff, comm_socket, log);
-        printf("Quedan %i fichas blancas\n",numDamasB);
+        turnoJugador(&tableroDamas, &str[4], movimiento, 2, &numDamasB, &isGameOver, sendBuff, recvBuff, comm_socket, log);
+        printf("Quedan %i fichas blancas\n", numDamasB);
         if (isGameOver)
         {
             break;
         }
-        
+
         if (numDamasB <= 0)
         {
             isGameOver = 1;
-            fprintf(log,"GANANNEGRAS\n");
+            fprintf(log, "GANANNEGRAS\n");
             fflush(log);
             partida->resultado = 2;
             break;
         }
-        
-        turnoJugador(&tableroDamas, &str[4], movimiento,1, &numDamasN,&isGameOver, sendBuff, recvBuff, comm_socket, log);
-        printf("Quedan %i fichas negras\n",numDamasN);
+
+        turnoJugador(&tableroDamas, &str[4], movimiento, 1, &numDamasN, &isGameOver, sendBuff, recvBuff, comm_socket, log);
+        printf("Quedan %i fichas negras\n", numDamasN);
         if (isGameOver)
         {
             break;
@@ -446,26 +461,24 @@ void partidaDamas(char *sendBuff, char *recvBuff, SOCKET comm_socket, Partida* p
         if (numDamasN <= 0)
         {
             isGameOver = 1;
-            fprintf(log,"GANANBLANCAS\n");
+            fprintf(log, "GANANBLANCAS\n");
             fflush(log);
             partida->resultado = 1;
         }
 
-        
     } while (isGameOver != 1);
     printf("Ha concluido la partida\n");
-    fprintf(log,"FINPARTIDA\n");
+    fprintf(log, "FINPARTIDA\n");
     fflush(log);
     fclose(log);
-    almacenarDatosPartida(partida->codigo,partida->resultado,partida->juego,partida->fecha,partida->codigotorneo,fichero);
-    
+    almacenarDatosPartida(partida->codigo, partida->resultado, partida->juego, partida->fecha, partida->codigotorneo, fichero);
 }
 void imprimirTableroDamas(Tablero8x8 tablero, char *sendBuff)
 {
     for (int i = 0; i < 8; i++)
     {
         char buffer[2];
-        sprintf(buffer, "%i", i+1);
+        sprintf(buffer, "%i", i + 1);
         strcat(sendBuff, buffer);
         for (int j = 0; j < 8; j++)
         {
@@ -529,49 +542,50 @@ void imprimirTableroDamas(Tablero8x8 tablero, char *sendBuff)
     strcat(sendBuff, "  1  2  3  4  5  6  7  8\n");
 }
 
-void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna, char *sendBuff){
+void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna, char *sendBuff)
+{
     int isSelected = 0;
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
-        {if (i== fila && j == columna)
         {
-            isSelected = 1;
-            strcat(sendBuff, ANSI_COLOR_YELLOW"*"ANSI_COLOR_RESET);
-        }
-        
+            if (i == fila && j == columna)
+            {
+                isSelected = 1;
+                strcat(sendBuff, ANSI_COLOR_YELLOW "*" ANSI_COLOR_RESET);
+            }
+
             switch (tablero.array[i][j])
             {
             case 0:
                 strcat(sendBuff, "[ ]");
                 break;
             case 1:
-            strcat(sendBuff, "[B]");
-            break;
+                strcat(sendBuff, "[B]");
+                break;
             case 2:
-            strcat(sendBuff, "[DB]");
-            break;
+                strcat(sendBuff, "[DB]");
+                break;
             case 3:
-            strcat(sendBuff, "[N]");
-            break;
+                strcat(sendBuff, "[N]");
+                break;
             case 4:
-            strcat(sendBuff,"[DN]");
-            break;
+                strcat(sendBuff, "[DN]");
+                break;
             default:
                 break;
             }
             if (isSelected == 1)
             {
-                strcat(sendBuff, ANSI_COLOR_YELLOW"*"ANSI_COLOR_RESET);
+                strcat(sendBuff, ANSI_COLOR_YELLOW "*" ANSI_COLOR_RESET);
                 isSelected = 0;
             }
-            
         }
         strcat(sendBuff, "\n");
     }
 }
 
-void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, int *isGameOver, char *sendBuff, char *recvBuff, SOCKET comm_socket,  FILE * log)
+void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, int *isGameOver, char *sendBuff, char *recvBuff, SOCKET comm_socket, FILE *log)
 {
     int ficha[2];
     int dama;
@@ -635,15 +649,13 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
             strcpy(mensaje, "");
             Sleep(500);
             str = recibirMensaje(recvBuff, comm_socket);
-            if(!strcmp(str, "Bye")){
+            if (!strcmp(str, "Bye"))
+            {
                 *isGameOver = 1;
                 return;
             }
             ficha[0] = str[0] - 49;
             ficha[1] = str[2] - 49;
-            //printf("%i\n", ficha[0]);
-            //printf("%i\n", ficha[1]);
-            //printf("%i,%i\n", dama, tableroDamas->array[ficha[0]][ficha[1]]);
         } while (!(str[1] == ',' && ficha[0] < 9 && ficha[0] >= 0 && ficha[1] < 9 && ficha[1] >= 0 && (tableroDamas->array[ficha[0]][ficha[1]] == dama || tableroDamas->array[ficha[0]][ficha[1]] == damaReina)) || fichaEnArray(fichasConPosibleCaptura, contadorPosiblesCapturas, ficha[0], ficha[1]) == 0);
         // Este if sirve para saber si la captura es hacia la izquierda o hacia la derecha.
         if (hayPiezaEnProximidad(*tableroDamas, numJugador, 0, ficha[0], ficha[1], 0) == 1)
@@ -691,25 +703,26 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
         do
         {
         labelFicha:
-        strcpy(mensaje, "");
-        imprimirTableroDamas(*tableroDamas, mensaje);
+            strcpy(mensaje, "");
+            imprimirTableroDamas(*tableroDamas, mensaje);
             if (numJugador == 1)
             {
                 char buffer[86];
                 sprintf(buffer, "Jugador %i, escoja una ficha valida (Blancas) para mover (Formato <<fila,columna>>)\n", numJugador);
                 strcat(mensaje, buffer);
-                enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket );
+                enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
             }
             else
             {
                 char buffer[85];
                 sprintf(buffer, "Jugador %i, escoja una ficha valida (Negras) para mover (Formato <<fila,columna>>)\n", numJugador);
                 strcat(mensaje, buffer);
-                enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket );
+                enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
             }
             strcpy(mensaje, "");
-            char *input = recibirMensaje(recvBuff,comm_socket);
-            if(!strcmp(input, "Bye")){
+            char *input = recibirMensaje(recvBuff, comm_socket);
+            if (!strcmp(input, "Bye"))
+            {
                 *isGameOver = 1;
                 return;
             }
@@ -720,7 +733,7 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
             str[0] = input[0];
             str[1] = input[1];
             str[2] = input[2];
-            
+
             ficha[0] = str[0] - 49;
             ficha[1] = str[2] - 49;
         } while (!((str[1] == ',') && ficha[0] < 9 && ficha[0] >= 0 && ficha[1] < 9 && ficha[1] >= 0 && (tableroDamas->array[ficha[0]][ficha[1]] == dama || tableroDamas->array[ficha[0]][ficha[1]] == damaReina)));
@@ -731,20 +744,21 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
         {
             isdamaReina = 1;
             char buffer[152];
-            sprintf(buffer, "Jugador %i, escoja un movimiento (1 Adelante Izquierda, 2 Adelante Derecha, 3 Atras Izquierda, 4 Atras Derecha,5 para volver a la seleccion de ficha)\n",numJugador);
+            sprintf(buffer, "Jugador %i, escoja un movimiento (1 Adelante Izquierda, 2 Adelante Derecha, 3 Atras Izquierda, 4 Atras Derecha,5 para volver a la seleccion de ficha)\n", numJugador);
             strcat(mensaje, buffer);
         }
         else
         {
             char buffer[99];
-            sprintf(buffer, "Jugador %i, escoja un movimiento (1 Izquierda, 2 Derecha, 5 para volver a la seleccion de ficha)\n",numJugador);
+            sprintf(buffer, "Jugador %i, escoja un movimiento (1 Izquierda, 2 Derecha, 5 para volver a la seleccion de ficha)\n", numJugador);
             strcat(mensaje, buffer);
         }
         enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
         strcpy(mensaje, "");
-        printf("Right now mensaje is %i",strlen(mensaje));
-        str = recibirMensaje(recvBuff,comm_socket);
-        if(!strcmp(str, "Bye")){
+        printf("Right now mensaje is %i", strlen(mensaje));
+        str = recibirMensaje(recvBuff, comm_socket);
+        if (!strcmp(str, "Bye"))
+        {
             *isGameOver = 1;
             return;
         }
@@ -785,7 +799,7 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
             {
                 if (tableroDamas->array[ficha[0] + sentidoMovimiento][ficha[1] - 1] != 0)
                 {
-                    strcat(mensaje,"No puedes ocupar el mismo espacio que otra ficha\n");
+                    strcat(mensaje, "No puedes ocupar el mismo espacio que otra ficha\n");
                     imprimirTableroDamasconSeleccion(*tableroDamas, ficha[0], ficha[1], mensaje);
                     goto labelMovimiento;
                 }
@@ -807,7 +821,7 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
             {
                 if (tableroDamas->array[ficha[0] + sentidoMovimiento][ficha[1] + 1] != 0)
                 {
-                    strcat(mensaje,"No puedes ocupar el mismo espacio que otra ficha\n");
+                    strcat(mensaje, "No puedes ocupar el mismo espacio que otra ficha\n");
                     imprimirTableroDamasconSeleccion(*tableroDamas, ficha[0], ficha[1], mensaje);
                     goto labelMovimiento;
                 }
@@ -852,16 +866,18 @@ void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int num
         printf(mensaje);
         printf("%i\n", strlen(sendBuff));
         strcat(mensaje, "\nPulse Cualquier tecla para continuar\n");
-        enviarMensaje(recvBuff,sendBuff,mensaje,comm_socket);
+        enviarMensaje(recvBuff, sendBuff, mensaje, comm_socket);
         strcpy(mensaje, "");
         char *str = recibirMensaje(recvBuff, comm_socket);
-        if(!strcmp(str, "Bye")){
+        if (!strcmp(str, "Bye"))
+        {
             *isGameOver = 1;
             return;
         }
     }
 }
-int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int filaFicha, int columnaFicha, int preferenciaOutOfBounds){
+int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int filaFicha, int columnaFicha, int preferenciaOutOfBounds)
+{
     int sentidoMovimiento;
     int outOfBoundsLeft = 0;
     int outOfBoundsRight = 0;
@@ -869,179 +885,240 @@ int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isReina, int fi
     if (bando == 1)
     {
         sentidoMovimiento = 1;
-    }else{
+    }
+    else
+    {
         sentidoMovimiento = -1;
-    } if(preferenciaOutOfBounds != 0){
+    }
+    if (preferenciaOutOfBounds != 0)
+    {
         ajustadorComparacion = 0;
-        }else{
-            ajustadorComparacion = 1;
-        }
-    if (!((columnaFicha-1)<(0+ajustadorComparacion) && filaFicha > 7*(bando-1)))
-            {
-        if ((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1)))
+    }
+    else
+    {
+        ajustadorComparacion = 1;
+    }
+    if (!((columnaFicha - 1) < (0 + ajustadorComparacion) && filaFicha > 7 * (bando - 1)))
+    {
+        if ((preferenciaOutOfBounds != 2) && (tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha - 1] == 3 + (sentidoMovimiento - 1) || tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha - 1] == 4 + (sentidoMovimiento - 1)))
         {
+            return 1;
+        }
+    }
+    else
+    {
+        outOfBoundsLeft = 1;
+    }
+    if (!((columnaFicha + 1) > (7 - ajustadorComparacion) && filaFicha > 7 * (bando - 1)))
+    {
+        if (tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha + 1] == 3 + (sentidoMovimiento - 1) || tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha + 1] == 4 + (sentidoMovimiento - 1))
+        {
+            return 2;
+        }
+    }
+    else
+    {
+        outOfBoundsRight = 1;
+    }
+    if (!((columnaFicha - 1) < (0 + ajustadorComparacion) && filaFicha > 7 * (bando - 1)))
+    {
+        if ((preferenciaOutOfBounds != 2) && (tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha - 1] != 0))
+        {
+            return 3;
+        }
+    }
+    else
+    {
+        outOfBoundsLeft = 1;
+    }
+    if (!((columnaFicha + 1) > (7 - ajustadorComparacion) && filaFicha > 7 * (bando - 1)))
+    {
+        if (tableroDamas.array[filaFicha - sentidoMovimiento][columnaFicha + 1] != 0)
+        {
+            return 4;
+        }
+    }
+    else
+    {
+        outOfBoundsRight = 1;
+    }
+    if (isReina == 1)
+    {
+        if (!((columnaFicha - 1) < 0 + ajustadorComparacion))
+        {
+            if (tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha - 1] == 3 + (sentidoMovimiento - 1) || tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha - 1] == 4 + (sentidoMovimiento - 1))
+            {
                 return 1;
             }
-        }else{outOfBoundsLeft = 1;
         }
-        if (!((columnaFicha+1)>(7-ajustadorComparacion) && filaFicha > 7*(bando-1)))
+        else
+        {
+            outOfBoundsLeft = 1;
+        }
+        if (!((columnaFicha + 1) > 7 - ajustadorComparacion))
+        {
+            if (tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha + 1] == 3 + (sentidoMovimiento - 1) || tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha + 1] == 4 + (sentidoMovimiento - 1))
             {
-                if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
                 return 2;
             }
-        }else{outOfBoundsRight = 1;} if(!((columnaFicha-1)<(0+ajustadorComparacion)  && filaFicha > 7*(bando-1)))
+        }
+        else
+        {
+            outOfBoundsRight = 1;
+        }
+        if (!((columnaFicha - 1) < 0 + ajustadorComparacion))
+        {
+            if (tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha - 1] != 0)
             {
-                if((preferenciaOutOfBounds != 2)&&(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha-1] != 0)){
                 return 3;
             }
-        }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>(7-ajustadorComparacion) && filaFicha > 7*(bando-1)))
+        }
+        else
+        {
+            outOfBoundsLeft = 1;
+        }
+        if (!((columnaFicha + 1) > 7 - ajustadorComparacion))
+        {
+            if (tableroDamas.array[filaFicha + sentidoMovimiento][columnaFicha + 1] != 0)
             {
-                if(tableroDamas.array[filaFicha-sentidoMovimiento][columnaFicha+1] != 0){
                 return 4;
             }
-        }else{outOfBoundsRight = 1;
         }
-        if (isReina == 1)
+        else
         {
-            if (!((columnaFicha-1)<0+ajustadorComparacion))
-            {
-            if (tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] == 4+(sentidoMovimiento-1))
-            {
-                return 1;
-            }
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7-ajustadorComparacion))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 3+(sentidoMovimiento-1) || tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] == 4+(sentidoMovimiento-1)){
-                return 2;
-            }
-            }else{outOfBoundsRight = 1;}if (!((columnaFicha-1)<0+ajustadorComparacion))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha-1] != 0){
-                return 3;
-            }
-            
-            }else{outOfBoundsLeft = 1;}if (!((columnaFicha+1)>7-ajustadorComparacion))
-            {
-                if(tableroDamas.array[filaFicha+sentidoMovimiento][columnaFicha+1] != 0){
-                return 4;
-            }
-        }else{outOfBoundsRight = 1;}
+            outOfBoundsRight = 1;
         }
-        if ((preferenciaOutOfBounds == 1 && outOfBoundsLeft == 1) || (preferenciaOutOfBounds == 2 && outOfBoundsRight == 1) )
-        {
-            return 5;
-        }
-        return 0;     
+    }
+    if ((preferenciaOutOfBounds == 1 && outOfBoundsLeft == 1) || (preferenciaOutOfBounds == 2 && outOfBoundsRight == 1))
+    {
+        return 5;
+    }
+    return 0;
 }
-int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha){
+int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha)
+{
     int sentidoMovimiento;
     if (bando == 1)
     {
         sentidoMovimiento = 1;
-    }else{
+    }
+    else
+    {
         sentidoMovimiento = -1;
     }
-    if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha,0) == 1)
+    if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha, columnaFicha, 0) == 1)
     {
-        if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) != 5)
+        if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha - 1, 1) != 5)
         {
-            if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) !=3 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha-1,1) !=1 ){
-            return 1;
+            if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha - 1, 1) != 3 && hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha - 1, 1) != 1)
+            {
+                return 1;
             }
             if (isDama)
             {
-                if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha-1,1) == 5)
-            {
-                return 0;
-            }
-                if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha-1,1) != 3 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha-1,1) != 1){
-                return 1;
+                if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha - 1, 1) == 5)
+                {
+                    return 0;
+                }
+                if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha - 1, 1) != 3 && hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha - 1, 1) != 1)
+                {
+                    return 1;
+                }
             }
         }
-    
-        
-        }
-        
-    }else if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha,columnaFicha,0) == 2){
-        if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 5)
+    }
+    else if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha, columnaFicha, 0) == 2)
+    {
+        if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha + 1, 2) != 5)
         {
-            if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 4 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha-sentidoMovimiento,columnaFicha+1,2) != 2){
-            return 1;
+            if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha + 1, 2) != 4 && hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha - sentidoMovimiento, columnaFicha + 1, 2) != 2)
+            {
+                return 1;
             }
             if (isDama)
             {
-                if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha+1,2) == 5)
-            {
-                return 0;
-            }
-                if (hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha+1,2) != 4 && hayPiezaEnProximidad(tableroDamas,bando,isDama,filaFicha+sentidoMovimiento,columnaFicha+1,2) != 2){
-                return 1;
+                if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha + 1, 2) == 5)
+                {
+                    return 0;
+                }
+                if (hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha + 1, 2) != 4 && hayPiezaEnProximidad(tableroDamas, bando, isDama, filaFicha + sentidoMovimiento, columnaFicha + 1, 2) != 2)
+                {
+                    return 1;
                 }
             }
         }
     }
     return 0;
-    
 }
-int fichaEnArray(int** arrayFichas, int tamanyoArray, int filaFicha, int columnaFicha){
+int fichaEnArray(int **arrayFichas, int tamanyoArray, int filaFicha, int columnaFicha)
+{
     for (int i = 0; i < tamanyoArray; i++)
     {
-        if((arrayFichas[i][0] == filaFicha) && (arrayFichas[i][1] == columnaFicha) ){
+        if ((arrayFichas[i][0] == filaFicha) && (arrayFichas[i][1] == columnaFicha))
+        {
             return 1;
         }
     }
     return 0;
-    
 }
-void imprimirTableroDamasEnServer(Tablero8x8 tablero){
+void imprimirTableroDamasEnServer(Tablero8x8 tablero)
+{
     for (int i = 0; i < 8; i++)
     {
-        printf("%i",i+1);
+        printf("%i", i + 1);
         for (int j = 0; j < 8; j++)
         {
             switch (tablero.array[i][j])
             {
             case 0:
-            if ((j+i+1)%2 == 0)
-            {
-                printf(ANSI_COLOR_RED"[ ]"ANSI_COLOR_RESET);
-            }else{
-                printf("[ ]");
-            }
+                if ((j + i + 1) % 2 == 0)
+                {
+                    printf(ANSI_COLOR_RED "[ ]" ANSI_COLOR_RESET);
+                }
+                else
+                {
+                    printf("[ ]");
+                }
                 break;
             case 1:
-            if ((j+i+1)%2 == 0)
-            {
-                printf(ANSI_COLOR_RED"["ANSI_COLOR_RESET);
-                printf("B");
-                printf(ANSI_COLOR_RED"]"ANSI_COLOR_RESET);
-            }else{
-                printf("[B]");
-            }
-            break;
+                if ((j + i + 1) % 2 == 0)
+                {
+                    printf(ANSI_COLOR_RED "[" ANSI_COLOR_RESET);
+                    printf("B");
+                    printf(ANSI_COLOR_RED "]" ANSI_COLOR_RESET);
+                }
+                else
+                {
+                    printf("[B]");
+                }
+                break;
             case 2:
-            printf("[DB]");
-            break;
+                printf("[DB]");
+                break;
             case 3:
-            if ((j+i+1)%2 == 0)
-            {
-                printf(ANSI_COLOR_RED"[N]"ANSI_COLOR_RESET);
-            }else{
-                printf("[");
-                printf(ANSI_COLOR_RED"N"ANSI_COLOR_RESET);
-            printf("]");
-            }
-            break;
+                if ((j + i + 1) % 2 == 0)
+                {
+                    printf(ANSI_COLOR_RED "[N]" ANSI_COLOR_RESET);
+                }
+                else
+                {
+                    printf("[");
+                    printf(ANSI_COLOR_RED "N" ANSI_COLOR_RESET);
+                    printf("]");
+                }
+                break;
             case 4:
-            if ((j+i+1)%2 == 0)
-            {
-                printf(ANSI_COLOR_RED"[DN]"ANSI_COLOR_RESET);
-            }else{
-                printf("[");
-                printf(ANSI_COLOR_RED"DN"ANSI_COLOR_RESET);
-            printf("]");
-            }
-            break;
+                if ((j + i + 1) % 2 == 0)
+                {
+                    printf(ANSI_COLOR_RED "[DN]" ANSI_COLOR_RESET);
+                }
+                else
+                {
+                    printf("[");
+                    printf(ANSI_COLOR_RED "DN" ANSI_COLOR_RESET);
+                    printf("]");
+                }
+                break;
             default:
                 break;
             }
@@ -1050,24 +1127,31 @@ void imprimirTableroDamasEnServer(Tablero8x8 tablero){
     }
     printf("  1  2  3  4  5  6  7  8\n");
 }
-FILE* crearCSVPartida(char* fichero){
-    FILE* fich = fopen(fichero, "w");
+FILE *crearCSVPartida(char *fichero)
+{
+    FILE *fich = fopen(fichero, "w");
     return fich;
 }
-void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha,  char codigotorneo[5], FILE * fichero){
-    
-    fprintf(fichero,"codigoPartida,resultado,juego,anyo,mes,dia,codigoTorneo\n");
-    if (fecha.tm_mday <10 && fecha.tm_mon <10)
+void almacenarDatosPartida(char codigo[5], int resultado, char juego[15], struct tm fecha, char codigotorneo[5], FILE *fichero)
+{
+
+    fprintf(fichero, "codigoPartida,resultado,juego,anyo,mes,dia,codigoTorneo\n");
+    if (fecha.tm_mday < 10 && fecha.tm_mon < 10)
     {
-        fprintf(fichero, "%c%c%c%c,%i,%s,%i,0%i,0%i,%c%c%c%c\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
-    }else if(fecha.tm_mday <10){
-        fprintf(fichero, "%c%c%c%c,%i,%s,%i,%i,0%i,%c%c%c%c\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
-    }else if(fecha.tm_mon <10){
-        fprintf(fichero, "%c%c%c%c,%i,%s,%i,0%i,%i,%c%c%c%c\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
-    }else{
-        fprintf(fichero, "%c%c%c%c,%i,%s,%i,%i,%i,%c%c%c%c\n",codigo[0],codigo[1],codigo[2],codigo[3],resultado,juego,fecha.tm_year+1900,fecha.tm_mon,fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+        fprintf(fichero, "%c%c%c%c,%i,%s,%i,0%i,0%i,%c%c%c%c\n", codigo[0], codigo[1], codigo[2], codigo[3], resultado, juego, fecha.tm_year + 1900, fecha.tm_mon, fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }
+    else if (fecha.tm_mday < 10)
+    {
+        fprintf(fichero, "%c%c%c%c,%i,%s,%i,%i,0%i,%c%c%c%c\n", codigo[0], codigo[1], codigo[2], codigo[3], resultado, juego, fecha.tm_year + 1900, fecha.tm_mon, fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }
+    else if (fecha.tm_mon < 10)
+    {
+        fprintf(fichero, "%c%c%c%c,%i,%s,%i,0%i,%i,%c%c%c%c\n", codigo[0], codigo[1], codigo[2], codigo[3], resultado, juego, fecha.tm_year + 1900, fecha.tm_mon, fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
+    }
+    else
+    {
+        fprintf(fichero, "%c%c%c%c,%i,%s,%i,%i,%i,%c%c%c%c\n", codigo[0], codigo[1], codigo[2], codigo[3], resultado, juego, fecha.tm_year + 1900, fecha.tm_mon, fecha.tm_mday, codigotorneo[0], codigotorneo[1], codigotorneo[2], codigotorneo[3]);
     }
     fclose(fichero);
-    //csvToDatabasePartida();
     fichero = NULL;
 }

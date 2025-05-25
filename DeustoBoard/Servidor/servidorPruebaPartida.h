@@ -46,7 +46,7 @@ void imprimirTableroDamas(Tablero8x8 tablero, char *sendBuff);
 void imprimirTableroDamasconSeleccion(Tablero8x8 tablero, int fila, int columna, char *sendBuff);
 
 void turnoJugador(Tablero8x8 *tableroDamas, char str[4], int movimiento, int numJugador, int *piezasAdversario, int *isGameOver, char *sendBuff, char *recvBuff, SOCKET comm_socket,  FILE * log);
-// void turnoJugador2(Tablero8x8* tableroDamas, char str[4], int movimiento);
+
 int hayPiezaEnProximidad(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha, int preferenciaOutOfBounds);
 
 int hayCapturaDisponible(Tablero8x8 tableroDamas, int bando, int isDama, int filaFicha, int columnaFicha);

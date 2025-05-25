@@ -168,7 +168,6 @@ void caseInicioSesion(char tecla, Usuario u){
         // comprobamos que la contraseña coincida con la contraseña del usuario en el dataset
         if (uDB.contrasenya !=  u.contrasenya) {
             printf("Contrasenya correcta.\n");
-            //elegirModoJuego();
             return;
         }else{
             printf("Contrasenya incorrecta\n");
@@ -177,7 +176,6 @@ void caseInicioSesion(char tecla, Usuario u){
         
         // 
         printf("Inicio de sesión correcto\n");
-        //elegirModoJuego();
         }
         break;
         case 'i':
@@ -193,7 +191,6 @@ void caseInicioSesion(char tecla, Usuario u){
                 // Verificar contraseña
                 if (uDB.contrasenya !=  u.contrasenya) {
                     printf("Contrasenya correcta.\n");
-                    //elegirModoJuego();
                     return;
                 }else{
                     printf("Contrasenya incorrecta\n");

@@ -27,17 +27,7 @@ void partidaCuatroRaya(char *sendBuff, char *recvBuff, SOCKET comm_socket,Partid
     if (!strcmp(temp, "Bye")) {
         return;
     }
-    /*
-    Partida partida;
-    strcpy(partida.codigo, &recvBuff[10]);
-    partida.codigo[4] = '\0';
 
-    time_t t = time(NULL);
-    partida.fecha = *localtime(&t);
-
-    strcpy(partida.juego, "CuatroRaya");
-    strcpy(partida.codigotorneo, "0000");
-    */
     FILE * fichero = crearCSVPartida("partidas.csv");
     char nomlog[11];
     printf("A punto de crear Log\n");
@@ -54,50 +44,8 @@ void partidaCuatroRaya(char *sendBuff, char *recvBuff, SOCKET comm_socket,Partid
     fflush(log);
     menuCuatroRayaSocket(comm_socket,partida,log);
 
-    //free(partida.codigo);
-}
-/*
-void imprimirTableroCuatroRaya(char tablero[FILAS][COLUMNAS]) { //función que imprime el tablero actualizándolo cada vez con las fichas ya introducidas
-    
-    printf("\n   ");
-    for (int col = 1; col <= COLUMNAS; col++) {
-        printf(" %d  ", col);
-    }
-    printf("\n");
-
-
-    for (int i = 0; i < FILAS; i++) {
-        printf("  ");
-        for (int j = 0; j < COLUMNAS; j++) {
-            int esGanadora = 0; //las fichas que sirvan para la victoria se pintarán de amarillo
-            for (int k = 0; k < 4; k++) {
-                if (fichasGanadoras[k][0] == i && fichasGanadoras[k][1] == j) {
-                    esGanadora = 1;
-                    break;
-                }
-            }
-
-            if (esGanadora) {
-                printf("[" ANSI_COLOR_YELLOW "%c" ANSI_COLOR_RESET "] ", tablero[i][j]); //si la ficha es de las ganadoras es amarilla
-            } else if (tablero[i][j] == 'X') {
-                printf("[" ANSI_COLOR_BLUE "%c" ANSI_COLOR_RESET "] ", tablero[i][j]); //si es 'X' es azul
-            } else if (tablero[i][j] == 'O') {
-                printf("[" ANSI_COLOR_RED "%c" ANSI_COLOR_RESET "] ", tablero[i][j]); //si es 'O' es roja
-            } else {
-                printf("[ ] ");
-            }
-        }
-        printf("\n");
-    }
-
-    printf("  ");
-    for (int col = 0; col < COLUMNAS; col++) {
-        printf("----");
-    }
-    printf("-\n");
 }
 
-*/
 
 
 int colocarFicha(char tablero[FILAS][COLUMNAS], int columna, char ficha) { //función que coloca fichas en el tablero
@@ -263,14 +211,12 @@ void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida,FILE * log) {
         char turnoMsg[512];
         sprintf(turnoMsg, "\nTurno del jugador %d (%c). Introduce columna (1-7):", turno + 1, fichaJugador[turno]);
         strcat(mensaje, turnoMsg);
-        //send(comm_socket, sendBuff, strlen(sendBuff), 0);
         enviarMensaje(recvBuff,sendBuff,mensaje,comm_socket);
 
         recibirMensaje(recvBuff,comm_socket);
         columnaSeleccionada = atoi(recvBuff);
 
         if (columnaSeleccionada < 1 || columnaSeleccionada > COLUMNAS || !colocarFicha(tablero, columnaSeleccionada, fichaJugador[turno])) {
-            //send(comm_socket, "Movimiento invalido\n", 21, 0);
             enviarMensaje(recvBuff,sendBuff,"Movimiento invalido\n",comm_socket);
             recv(comm_socket,recvBuff,sizeof(recvBuff),0);
             continue;
