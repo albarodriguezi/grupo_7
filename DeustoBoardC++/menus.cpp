@@ -758,7 +758,7 @@ void menuTorneosDisponibles(SOCKET *s, Log &logger)
 		 << endl;
 	cout << "Give us a moment..." << endl;
 
-	if (modoJuegoSeleccionado == 1) {
+	
 		char sendBuff[512];
 		char recvBuff[1024];
 		recvBuff[0] = '\0';
@@ -814,9 +814,7 @@ void menuTorneosDisponibles(SOCKET *s, Log &logger)
 		cin.ignore();
 		cin.get();
 
-	}else {
-		cout << modoJuegoSeleccionado;
-	}
+	
 }
 
 void menuUnirseTorneo(SOCKET *s, Log &logger)
@@ -1010,3 +1008,4 @@ void enviarComandoRegistro(SOCKET* s, Usuario& u) {
     send(*s, sendBuff, 512, 0);
 	recv(*s, recvBuff,1024,0);
 }
+

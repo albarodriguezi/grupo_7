@@ -56,7 +56,7 @@ void partidaCuatroRaya(char *sendBuff, char *recvBuff, SOCKET comm_socket,Partid
 
     //free(partida.codigo);
 }
-
+/*
 void imprimirTableroCuatroRaya(char tablero[FILAS][COLUMNAS]) { //función que imprime el tablero actualizándolo cada vez con las fichas ya introducidas
     
     printf("\n   ");
@@ -97,7 +97,7 @@ void imprimirTableroCuatroRaya(char tablero[FILAS][COLUMNAS]) { //función que i
     printf("-\n");
 }
 
-
+*/
 
 
 int colocarFicha(char tablero[FILAS][COLUMNAS], int columna, char ficha) { //función que coloca fichas en el tablero
@@ -272,6 +272,7 @@ void menuCuatroRayaSocket(SOCKET comm_socket, Partida* partida,FILE * log) {
         if (columnaSeleccionada < 1 || columnaSeleccionada > COLUMNAS || !colocarFicha(tablero, columnaSeleccionada, fichaJugador[turno])) {
             //send(comm_socket, "Movimiento invalido\n", 21, 0);
             enviarMensaje(recvBuff,sendBuff,"Movimiento invalido\n",comm_socket);
+            recv(comm_socket,recvBuff,sizeof(recvBuff),0);
             continue;
         }
 
